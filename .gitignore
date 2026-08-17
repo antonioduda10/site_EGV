@@ -1,0 +1,50 @@
+# Dependências
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Build / Next.js
+.next/
+.next-build/
+out/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env*.local
+
+# Uploads (arquivos gerados em runtime)
+uploads/
+
+# Banco / Prisma
+prisma/migrations/
+*.db
+*.sqlite
+
+# Backup do banco
+*.backup
+
+# Documentação interna / arquivos de projeto
+/docs/
+wireframes/
+COPILOT_PROMPT_ESCOLA.md
+COPILOT_PROMPT*.md
+*.prompt.md
+*.instructions.md
+*.agent.md
+AGENTS.md
+portal_egv.backup
+
+# Scripts utilitários (não fazem parte do app)
+scripts/
+
+# Logs
+*.log
+npm-debug.log*
+.codex-dev.out.log
+.codex-dev.err.log
+
+# OS
+.DS_Store
+Thumbs.db

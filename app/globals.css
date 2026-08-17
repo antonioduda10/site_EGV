@@ -1,0 +1,344 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --brand-50: 241 246 255;
+  --brand-100: 219 232 255;
+  --brand-200: 182 209 255;
+  --brand-300: 134 176 255;
+  --brand-400: 75 134 255;
+  --brand-500: 31 94 255;
+  --brand-600: 22 71 214;
+  --brand-700: 20 57 173;
+  --brand-800: 21 47 138;
+  --brand-900: 22 42 115;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-white text-slate-900 antialiased;
+}
+
+a {
+  @apply text-brand-600 hover:text-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-brand-300 dark:hover:text-brand-200 dark:focus-visible:ring-offset-slate-950;
+}
+
+button, input, select, textarea {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950;
+}
+
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 rounded bg-white px-4 py-2 text-slate-900 shadow dark:bg-slate-900 dark:text-slate-100;
+}
+
+::selection {
+  background: rgba(22, 71, 214, 0.2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+.article-content img {
+  width: 100%;
+  max-width: 620px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.6);
+}
+
+.pagina-editor .ql-editor img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  height: auto;
+  border-radius: 12px;
+}
+
+.pagina-editor .ql-container {
+  min-height: 260px;
+}
+
+.pagina-editor .ql-editor {
+  min-height: 220px;
+  font-size: 0.95rem;
+}
+
+.article-content figure {
+  margin: 2.5rem 0;
+  max-width: 100%;
+}
+
+.article-content .media {
+  margin: 2.5rem auto;
+}
+
+.article-content .media--left {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.article-content .media--right {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.article-content .media--small {
+  max-width: 340px;
+}
+
+.article-content .media--medium {
+  max-width: 520px;
+}
+
+.article-content .media--wide {
+  max-width: 640px;
+}
+
+.article-content .media--ratio-1-1 img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.article-content .media--ratio-4-3 img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.article-content .media--ratio-16-9 img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.editor-content img {
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.5);
+}
+
+.editor-content .media--left {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.editor-content .media--right {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.editor-content .media--ratio-1-1 img {
+  aspect-ratio: 1 / 1;
+}
+
+.editor-content .media--ratio-4-3 img {
+  aspect-ratio: 4 / 3;
+}
+
+.editor-content .media--ratio-16-9 img {
+  aspect-ratio: 16 / 9;
+}
+
+.editor-content figure {
+  margin: 1.5rem 0;
+  max-width: 100%;
+  min-width: 220px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.editor-content figure.is-selected {
+  outline: 2px solid #93c5fd;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.editor-content figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.editor-content .media-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #3b82f6;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.editor-content figure.is-selected .media-handle {
+  opacity: 1;
+}
+
+.editor-content .media-handle--left {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.editor-content .media-handle--right {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.editor-content .media-handle--bottom {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ew-resize;
+}
+
+.editor-content .media--expanded img {
+  max-height: 520px;
+  object-fit: contain;
+}
+
+.article-content figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.dark .article-content figcaption {
+  color: #94a3b8;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #94a3b8;
+  padding-left: 1rem;
+  color: #334155;
+  font-style: italic;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.dark .article-content blockquote {
+  color: #cbd5e1;
+  background: #0f172a;
+  border-left-color: #475569;
+}
+
+.news-cover-card {
+  height: 112px;
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .news-cover-card {
+    height: 128px;
+  }
+}
+
+@media (min-width: 768px) {
+  .news-cover-card {
+    height: 144px;
+  }
+}
+
+.news-cover-detail {
+  height: 180px;
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .news-cover-detail {
+    height: 220px;
+  }
+}
+
+@media (min-width: 768px) {
+  .news-cover-detail {
+    height: 260px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .news-cover-detail {
+    height: 300px;
+  }
+}
+
+.news-cover-card > img,
+.news-cover-detail > img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: block;
+}
+
+.home-alert-highlight {
+  --home-alert-pulse-duration: 3.4s;
+  animation: home-alert-soft-pulse var(--home-alert-pulse-duration) ease-in-out infinite;
+}
+
+.home-alert-dot {
+  animation: home-alert-dot-pulse 1.6s ease-in-out infinite;
+}
+
+.home-alert-highlight--slow {
+  --home-alert-pulse-duration: 5s;
+}
+
+.home-alert-highlight--normal {
+  --home-alert-pulse-duration: 3.4s;
+}
+
+.home-alert-highlight--fast {
+  --home-alert-pulse-duration: 2.2s;
+}
+
+@keyframes home-alert-soft-pulse {
+  0%,
+  100% {
+    box-shadow: 0 6px 18px rgb(245 158 11 / 0.12);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgb(245 158 11 / 0.18), 0 16px 34px rgb(245 158 11 / 0.24);
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes home-alert-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-alert-highlight,
+  .home-alert-dot {
+    animation: none;
+  }
+}

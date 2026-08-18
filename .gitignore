@@ -27,12 +27,6 @@ prisma/migrations/
 
 # Documentação interna / arquivos de projeto
 /docs/
-wireframes/
-COPILOT_PROMPT_ESCOLA.md
-COPILOT_PROMPT*.md
-*.prompt.md
-*.instructions.md
-*.agent.md
 AGENTS.md
 portal_egv.backup
 
@@ -42,8 +36,6 @@ scripts/
 # Logs
 *.log
 npm-debug.log*
-.codex-dev.out.log
-.codex-dev.err.log
 
 # OS
 .DS_Store

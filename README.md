@@ -158,7 +158,7 @@ Roteiro recomendado:
 - O painel administrativo depende das permissões configuradas para filtrar menus e ações.
 - As cores institucionais continuam controladas por variáveis CSS e configurações do site.
 
-## Colaboradore
+## Colaboradores
 
 - Antônio Duda Oliveira da Silva
 - Luis Fernando

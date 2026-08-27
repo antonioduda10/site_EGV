@@ -157,3 +157,9 @@ Roteiro recomendado:
 - O frontend mantém SSR/Server Components onde possível.
 - O painel administrativo depende das permissões configuradas para filtrar menus e ações.
 - As cores institucionais continuam controladas por variáveis CSS e configurações do site.
+
+## Colaboradore
+
+- Antônio Duda Oliveira da Silva
+- Luis Fernando
+- Diego Dávila

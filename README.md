@@ -162,4 +162,4 @@ Roteiro recomendado:
 
 - Antônio Duda Oliveira da Silva
 - Luis Fernando
-- Diego Dávila
+- Diego D'Avila de Sousa Garcia

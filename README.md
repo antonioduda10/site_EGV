@@ -161,5 +161,5 @@ Roteiro recomendado:
 ## Colaboradores
 
 - Antônio Duda Oliveira da Silva
-- Luis Fernando
+- Luis Fernando Carvalho Costa
 - Diego D'Avila de Sousa Garcia

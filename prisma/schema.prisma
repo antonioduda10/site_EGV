@@ -33,35 +33,35 @@ enum StatusSugestao {
 }
 
 model Usuario {
-  id            String          @id @default(uuid())
-  nome          String
-  email         String          @unique
-  senhaHash     String
-  sessaoVersao  Int             @default(1)
-  status        String          @default("ATIVO")
-  superAdmin    Boolean         @default(false)
-  dataCadastro  DateTime        @default(now())
-  perfis        UsuarioPerfil[]
-  noticias      Noticia[]
+  id                  String               @id @default(uuid())
+  nome                String
+  email               String               @unique
+  senhaHash           String
+  sessaoVersao        Int                  @default(1)
+  status              String               @default("ATIVO")
+  superAdmin          Boolean              @default(false)
+  dataCadastro        DateTime             @default(now())
+  perfis              UsuarioPerfil[]
+  noticias            Noticia[]
   passwordResetTokens PasswordResetToken[]
-  permissoes    UsuarioPermissao[]
-  sessaoAtiva   SessaoAtiva?
+  permissoes          UsuarioPermissao[]
+  sessaoAtiva         SessaoAtiva?
 }
 
 model SessaoAtiva {
-  usuarioId     String    @id
-  sessaoVersao  Int       @default(1)
-  ultimoPingEm  DateTime  @default(now())
-  usuario       Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  usuarioId    String   @id
+  sessaoVersao Int      @default(1)
+  ultimoPingEm DateTime @default(now())
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([ultimoPingEm])
 }
 
 model Perfil {
-  id          String          @id @default(uuid())
-  nome        String          @unique
-  descricao   String?
-  usuarios    UsuarioPerfil[]
+  id        String          @id @default(uuid())
+  nome      String          @unique
+  descricao String?
+  usuarios  UsuarioPerfil[]
 }
 
 model UsuarioPerfil {
@@ -84,19 +84,19 @@ model UsuarioPermissao {
 }
 
 model Noticia {
-  id              String        @id @default(uuid())
-  titulo          String
-  resumo          String
-  conteudo        String
-  slug            String        @unique
-  dataCadastro    DateTime      @default(now())
-  dataPublicacao  DateTime?
-  status          StatusNoticia @default(RASCUNHO)
-  imagemCapa      String?
-  imagemCapaTamanho String    @default("MEDIO")
-  motivoRejeicao  String?
-  autorId         String?
-  autor           Usuario?      @relation(fields: [autorId], references: [id])
+  id                String        @id @default(uuid())
+  titulo            String
+  resumo            String
+  conteudo          String
+  slug              String        @unique
+  dataCadastro      DateTime      @default(now())
+  dataPublicacao    DateTime?
+  status            StatusNoticia @default(RASCUNHO)
+  imagemCapa        String?
+  imagemCapaTamanho String        @default("MEDIO")
+  motivoRejeicao    String?
+  autorId           String?
+  autor             Usuario?      @relation(fields: [autorId], references: [id])
 }
 
 model Evento {
@@ -112,35 +112,35 @@ model Evento {
 }
 
 model PaginaInstitucional {
-  id      String  @id @default(uuid())
-  titulo  String
+  id       String  @id @default(uuid())
+  titulo   String
   conteudo String
-  slug    String  @unique
-  ordem   Int     @default(0)
-  visivel Boolean @default(true)
+  slug     String  @unique
+  ordem    Int     @default(0)
+  visivel  Boolean @default(true)
 }
 
 model ConfiguracaoSite {
-  id               String   @id @default(uuid())
-  logoUrl          String?
-  corPrimaria      String?
-  corSecundaria    String?
-  politicaPrivacidade String?
-  cookies          String?
-  termos           String?
-  botaoHistoriaLink String?
-  botaoHistoriaNovaAba Boolean @default(false)
-  diarioExternoLink String?
-  menuJson         String?
-  acessoRapidoJson String?
-  rodapeJson       String?
-  textosPublicosJson String?
-  avisosHomeJson   String?
-  atualizadoEm     DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  logoUrl              String?
+  corPrimaria          String?
+  corSecundaria        String?
+  politicaPrivacidade  String?
+  cookies              String?
+  termos               String?
+  botaoHistoriaLink    String?
+  botaoHistoriaNovaAba Boolean  @default(false)
+  diarioExternoLink    String?
+  menuJson             String?
+  acessoRapidoJson     String?
+  rodapeJson           String?
+  textosPublicosJson   String?
+  avisosHomeJson       String?
+  atualizadoEm         DateTime @updatedAt
 }
 
 model ArquivoDocumento {
-  id         String         @id @default(uuid())
+  id         String          @id @default(uuid())
   nome       String
   caminho    String
   tipo       String
@@ -148,25 +148,25 @@ model ArquivoDocumento {
   descricao  String?
   categoria  String
   ano        Int
-  ordem      Int            @default(0)
-  versao     Int            @default(1)
-  dataUpload DateTime       @default(now())
+  ordem      Int             @default(0)
+  versao     Int             @default(1)
+  dataUpload DateTime        @default(now())
   status     StatusDocumento @default(ATIVO)
 }
 
 model Midia {
-  id         String   @id @default(uuid())
-  titulo     String
-  descricao  String?
+  id             String      @id @default(uuid())
+  titulo         String
+  descricao      String?
   dataReferencia DateTime?
-  ordem      Int      @default(0)
-  albumId    String?
-  album      AlbumFoto? @relation("AlbumItems", fields: [albumId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  capaDeAlbuns AlbumFoto[] @relation("AlbumCover")
-  caminho    String
-  tipo       String
-  tamanho    Int
-  dataUpload DateTime @default(now())
+  ordem          Int         @default(0)
+  albumId        String?
+  album          AlbumFoto?  @relation("AlbumItems", fields: [albumId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  capaDeAlbuns   AlbumFoto[] @relation("AlbumCover")
+  caminho        String
+  tipo           String
+  tamanho        Int
+  dataUpload     DateTime    @default(now())
 
   @@index([albumId])
   @@index([ordem])
@@ -191,19 +191,22 @@ model VideoGaleria {
   descricao      String?
   url            String
   modoExibicao   String   @default("AUTO")
+  ordem          Int      @default(0)
   curtidas       Int      @default(0)
   visualizacoes  Int      @default(0)
   dataPublicacao DateTime @default(now())
+
+  @@index([ordem])
 }
 
 model SugestaoContato {
-  id                String        @id @default(uuid())
+  id                String         @id @default(uuid())
   nome              String
   email             String
   assunto           String
   mensagem          String
   perfilDestino     String?
-  dataEnvio         DateTime      @default(now())
+  dataEnvio         DateTime       @default(now())
   statusAtendimento StatusSugestao @default(NOVO)
 }
 
@@ -211,7 +214,7 @@ model LogAuditoria {
   id                   String   @id @default(uuid())
   dataHora             DateTime @default(now())
   acao                 String
-  entidadeAfetada       String
+  entidadeAfetada      String
   idRegistroAfetado    String?
   usuarioResponsavelId String?
   detalhesJson         String?
@@ -229,54 +232,54 @@ model CookieConsent {
 }
 
 model PageView {
-  id        String   @id @default(uuid())
-  caminho   String
-  dataHora  DateTime @default(now())
+  id       String   @id @default(uuid())
+  caminho  String
+  dataHora DateTime @default(now())
 }
 
 model Turma {
-  id           String   @id @default(uuid())
-  anoLetivo    Int
-  serie        String
+  id            String       @id @default(uuid())
+  anoLetivo     Int
+  serie         String
   identificacao String
-  turno        String
-  matriculas   Matricula[]
-  diarios      DiarioAula[]
-  avaliacoes   Avaliacao[]
+  turno         String
+  matriculas    Matricula[]
+  diarios       DiarioAula[]
+  avaliacoes    Avaliacao[]
 }
 
 model Aluno {
-  id                  String   @id @default(uuid())
-  nome                String
-  dataNascimento      DateTime
-  cpf                 String
-  contatoResponsavel  String
+  id                   String               @id @default(uuid())
+  nome                 String
+  dataNascimento       DateTime
+  cpf                  String
+  contatoResponsavel   String
   responsavelPrincipal String
-  matriculas          Matricula[]
-  notas               Nota[]
+  matriculas           Matricula[]
+  notas                Nota[]
   frequencias          RegistroFrequencia[]
 }
 
 model Professor {
-  id                String   @id @default(uuid())
-  nome              String
+  id                 String       @id @default(uuid())
+  nome               String
   emailInstitucional String
-  titulacao         String
-  diarios           DiarioAula[]
+  titulacao          String
+  diarios            DiarioAula[]
 }
 
 model Disciplina {
-  id              String   @id @default(uuid())
-  nome            String   @unique
-  cargaHoraria    Int
+  id               String       @id @default(uuid())
+  nome             String       @unique
+  cargaHoraria     Int
   areaConhecimento String
-  diarios         DiarioAula[]
-  notas           Nota[]
+  diarios          DiarioAula[]
+  notas            Nota[]
   avaliacoes       Avaliacao[]
 }
 
 model Matricula {
-  id        String  @id @default(uuid())
+  id        String @id @default(uuid())
   alunoId   String
   turmaId   String
   anoLetivo Int
@@ -286,53 +289,53 @@ model Matricula {
 }
 
 model DiarioAula {
-  id                String    @id @default(uuid())
-  turmaId           String
-  disciplinaId      String
-  professorId       String?
-  dataAula          DateTime
+  id                 String               @id @default(uuid())
+  turmaId            String
+  disciplinaId       String
+  professorId        String?
+  dataAula           DateTime
   conteudoMinistrado String
-  observacoes       String?
-  turma             Turma     @relation(fields: [turmaId], references: [id])
-  disciplina        Disciplina @relation(fields: [disciplinaId], references: [id])
-  professor         Professor? @relation(fields: [professorId], references: [id])
-  registros         RegistroFrequencia[]
+  observacoes        String?
+  turma              Turma                @relation(fields: [turmaId], references: [id])
+  disciplina         Disciplina           @relation(fields: [disciplinaId], references: [id])
+  professor          Professor?           @relation(fields: [professorId], references: [id])
+  registros          RegistroFrequencia[]
 }
 
 model RegistroFrequencia {
-  id            String    @id @default(uuid())
+  id            String     @id @default(uuid())
   diarioAulaId  String
   alunoId       String
   presenca      Boolean
   justificativa String?
-  dataRegistro  DateTime  @default(now())
+  dataRegistro  DateTime   @default(now())
   diarioAula    DiarioAula @relation(fields: [diarioAulaId], references: [id])
   aluno         Aluno      @relation(fields: [alunoId], references: [id])
 }
 
 model Avaliacao {
-  id           String   @id @default(uuid())
-  tipo         String
-  descricao    String
+  id            String      @id @default(uuid())
+  tipo          String
+  descricao     String
   dataAplicacao DateTime
-  peso         Float
-  turmaId      String?
-  disciplinaId String?
-  turma        Turma?      @relation(fields: [turmaId], references: [id])
-  disciplina   Disciplina? @relation(fields: [disciplinaId], references: [id])
-  notas        Nota[]
+  peso          Float
+  turmaId       String?
+  disciplinaId  String?
+  turma         Turma?      @relation(fields: [turmaId], references: [id])
+  disciplina    Disciplina? @relation(fields: [disciplinaId], references: [id])
+  notas         Nota[]
 }
 
 model Nota {
-  id           String     @id @default(uuid())
-  alunoId      String
-  disciplinaId String
-  avaliacaoId  String?
-  valor        Float
-  dataLancamento DateTime @default(now())
-  aluno        Aluno      @relation(fields: [alunoId], references: [id])
-  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id])
-  avaliacao    Avaliacao? @relation(fields: [avaliacaoId], references: [id])
+  id             String     @id @default(uuid())
+  alunoId        String
+  disciplinaId   String
+  avaliacaoId    String?
+  valor          Float
+  dataLancamento DateTime   @default(now())
+  aluno          Aluno      @relation(fields: [alunoId], references: [id])
+  disciplina     Disciplina @relation(fields: [disciplinaId], references: [id])
+  avaliacao      Avaliacao? @relation(fields: [avaliacaoId], references: [id])
 }
 
 model PasswordResetToken {
@@ -343,13 +346,13 @@ model PasswordResetToken {
 }
 
 model Banner {
-  id          String   @id @default(uuid())
-  titulo      String
-  descricao   String?
-  imagem      String
-  link        String?
-  ordem       Int      @default(0)
-  ativo       Boolean  @default(true)
+  id           String   @id @default(uuid())
+  titulo       String
+  descricao    String?
+  imagem       String
+  link         String?
+  ordem        Int      @default(0)
+  ativo        Boolean  @default(true)
   dataCadastro DateTime @default(now())
 }
 

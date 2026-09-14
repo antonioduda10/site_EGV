@@ -18,6 +18,7 @@ export function VideoForm() {
       titulo: String(formData.get("titulo") ?? ""),
       descricao: String(formData.get("descricao") ?? ""),
       url: String(formData.get("url") ?? ""),
+      ordem: Number(formData.get("ordem") ?? 0),
       modoExibicao: String(formData.get("modoExibicao") ?? "AUTO")
     };
 
@@ -75,13 +76,19 @@ export function VideoForm() {
         className={`${fieldClass} mt-3`}
         disabled={isSaving}
       />
-      <div className="mt-3 space-y-1.5">
-        <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Modo de exibição</label>
-        <select name="modoExibicao" defaultValue="AUTO" className={fieldClass} disabled={isSaving}>
-          <option value="AUTO">Automático (recomendado)</option>
-          <option value="EMBED">Tentar incorporar no site</option>
-          <option value="EXTERNO">Abrir sempre no YouTube</option>
-        </select>
+      <div className="mt-3 grid gap-3 md:grid-cols-[1fr_160px]">
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Modo de exibição</label>
+          <select name="modoExibicao" defaultValue="AUTO" className={fieldClass} disabled={isSaving}>
+            <option value="AUTO">Automático (recomendado)</option>
+            <option value="EMBED">Tentar incorporar no site</option>
+            <option value="EXTERNO">Abrir sempre no YouTube</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Ordem</label>
+          <input name="ordem" type="number" min={0} defaultValue={0} className={fieldClass} disabled={isSaving} />
+        </div>
       </div>
       <button
         className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:focus:ring-offset-slate-900"

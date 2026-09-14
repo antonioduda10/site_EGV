@@ -6,8 +6,15 @@ import { logAuditoria } from "@/lib/audit";
 
 const validDisplayModes = ["AUTO", "EMBED", "EXTERNO"] as const;
 
+function normalizeOrder(value: unknown) {
+  const parsed = Number(value ?? 0);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : 0;
+}
+
 export async function GET() {
-  const videos = await db.videoGaleria.findMany({ orderBy: { dataPublicacao: "desc" } });
+  const videos = await db.videoGaleria.findMany({
+    orderBy: [{ ordem: "asc" }, { dataPublicacao: "desc" }, { id: "asc" }]
+  });
   return NextResponse.json(videos);
 }
 
@@ -21,6 +28,7 @@ export async function POST(request: Request) {
   const titulo = String(body?.titulo ?? "").trim();
   const descricao = String(body?.descricao ?? "").trim();
   const url = String(body?.url ?? "").trim();
+  const ordem = normalizeOrder(body?.ordem);
   const modoExibicaoRaw = String(body?.modoExibicao ?? "AUTO").toUpperCase();
   const modoExibicao = validDisplayModes.includes(modoExibicaoRaw as (typeof validDisplayModes)[number])
     ? modoExibicaoRaw
@@ -35,6 +43,7 @@ export async function POST(request: Request) {
       titulo,
       descricao: descricao || null,
       url,
+      ordem,
       modoExibicao
     }
   });

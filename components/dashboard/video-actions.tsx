@@ -9,19 +9,61 @@ type Video = {
   descricao: string | null;
   url: string;
   modoExibicao: string;
+  ordem: number;
 };
 
-export function VideoActions({ video }: { video: Video }) {
+type VideoActionsProps = {
+  video: Video;
+  prevOrdem?: number | null;
+  nextOrdem?: number | null;
+};
+
+export function VideoActions({ video, prevOrdem, nextOrdem }: VideoActionsProps) {
   const [editando, setEditando] = useState(false);
   const [titulo, setTitulo] = useState(video.titulo);
   const [descricao, setDescricao] = useState(video.descricao ?? "");
   const [url, setUrl] = useState(video.url);
   const [modoExibicao, setModoExibicao] = useState(video.modoExibicao ?? "AUTO");
+  const [ordem, setOrdem] = useState(video.ordem ?? 0);
   const [msg, setMsg] = useState<string | null>(null);
-  const [loadingAction, setLoadingAction] = useState<"salvar" | "remover" | null>(null);
+  const [loadingAction, setLoadingAction] = useState<"subir" | "descer" | "salvar" | "remover" | null>(null);
   const router = useRouter();
+  const hasOrderControls = prevOrdem !== undefined || nextOrdem !== undefined;
   const fieldClass =
     "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-500 dark:focus:ring-brand-900/40 dark:disabled:bg-slate-900";
+
+  const mover = async (move: "up" | "down") => {
+    if (loadingAction) return;
+    setMsg(null);
+    setLoadingAction(move === "up" ? "subir" : "descer");
+    try {
+      const response = await fetch(`/api/videos/${video.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ move })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok) {
+        router.refresh();
+      } else {
+        setMsg(data.error ?? "Erro ao atualizar ordem.");
+      }
+    } catch {
+      setMsg("Erro de conexão ao atualizar ordem.");
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const subir = async () => {
+    if (prevOrdem === null || prevOrdem === undefined) return;
+    await mover("up");
+  };
+
+  const descer = async () => {
+    if (nextOrdem === null || nextOrdem === undefined) return;
+    await mover("down");
+  };
 
   const salvar = async () => {
     if (loadingAction) return;
@@ -31,7 +73,7 @@ export function VideoActions({ video }: { video: Video }) {
       const response = await fetch(`/api/videos/${video.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo, descricao, url, modoExibicao })
+        body: JSON.stringify({ titulo, descricao, url, modoExibicao, ordem })
       });
       const data = await response.json().catch(() => ({}));
       if (response.ok) {
@@ -103,6 +145,14 @@ export function VideoActions({ video }: { video: Video }) {
           <option value="EMBED">Tentar incorporar no site</option>
           <option value="EXTERNO">Abrir sempre no YouTube</option>
         </select>
+        <input
+          className={fieldClass}
+          type="number"
+          value={ordem}
+          onChange={(event) => setOrdem(Number(event.target.value))}
+          placeholder="Ordem"
+          disabled={Boolean(loadingAction)}
+        />
         <div className="flex flex-wrap gap-2 text-xs">
           <button
             className="rounded-lg bg-brand-600 px-3 py-2 font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
@@ -127,7 +177,29 @@ export function VideoActions({ video }: { video: Video }) {
   }
 
   return (
-    <div className="flex min-w-[120px] flex-col gap-2 text-xs">
+    <div className="flex min-w-[132px] flex-col gap-2 text-xs">
+      {hasOrderControls && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={subir}
+            disabled={prevOrdem === null || prevOrdem === undefined || Boolean(loadingAction)}
+            className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+            aria-label={`Subir vídeo ${video.titulo}`}
+          >
+            {loadingAction === "subir" ? "Subindo..." : "Subir"}
+          </button>
+          <button
+            type="button"
+            onClick={descer}
+            disabled={nextOrdem === null || nextOrdem === undefined || Boolean(loadingAction)}
+            className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+            aria-label={`Descer vídeo ${video.titulo}`}
+          >
+            {loadingAction === "descer" ? "Descendo..." : "Descer"}
+          </button>
+        </div>
+      )}
       <button
         type="button"
         onClick={() => setEditando(true)}

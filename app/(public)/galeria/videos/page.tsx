@@ -14,12 +14,14 @@ export const metadata = createPublicMetadata({
 
 export default async function GaleriaVideosPublicaPage() {
   const [videos, uploads] = await Promise.all([
-    db.videoGaleria.findMany({ orderBy: { dataPublicacao: "desc" } }),
+    db.videoGaleria.findMany({
+      orderBy: [{ ordem: "asc" }, { dataPublicacao: "desc" }, { id: "asc" }]
+    }),
     db.midia.findMany({
       where: {
         OR: [{ tipo: { startsWith: "audio/" } }, { tipo: { startsWith: "video/" } }]
       },
-      orderBy: { dataUpload: "desc" }
+      orderBy: [{ ordem: "asc" }, { dataUpload: "desc" }, { id: "asc" }]
     })
   ]);
 

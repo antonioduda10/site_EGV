@@ -34,7 +34,9 @@ function parseDateOnlyToUtc(value: string) {
 }
 
 export async function GET() {
-  const midias = await db.midia.findMany({ orderBy: { dataUpload: "desc" } });
+  const midias = await db.midia.findMany({
+    orderBy: [{ ordem: "asc" }, { dataUpload: "desc" }, { id: "asc" }]
+  });
   return NextResponse.json(midias);
 }
 
@@ -63,7 +65,7 @@ export async function POST(request: Request) {
   }
 
   const ordem = Number(ordemRaw || "0");
-  const ordemNormalizada = Number.isFinite(ordem) ? Math.max(0, ordem) : 0;
+  const ordemNormalizada = Number.isFinite(ordem) ? Math.max(0, Math.trunc(ordem)) : 0;
 
   let albumId: string | null = null;
   if (albumIdRaw) {

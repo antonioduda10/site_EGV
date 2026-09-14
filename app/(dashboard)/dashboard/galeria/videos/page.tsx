@@ -22,12 +22,14 @@ export default async function GaleriaVideosPage() {
   }
 
   // Lista videos por link e uploads de audio/video separadamente.
-  const videos = await db.videoGaleria.findMany({ orderBy: { dataPublicacao: "desc" } });
+  const videos = await db.videoGaleria.findMany({
+    orderBy: [{ ordem: "asc" }, { dataPublicacao: "desc" }, { id: "asc" }]
+  });
   const uploads = await db.midia.findMany({
     where: {
       OR: [{ tipo: { startsWith: "audio/" } }, { tipo: { startsWith: "video/" } }]
     },
-    orderBy: { dataUpload: "desc" }
+    orderBy: [{ ordem: "asc" }, { dataUpload: "desc" }, { id: "asc" }]
   });
 
   const videosUpload = uploads.filter((midia) => midia.tipo.startsWith("video/"));
@@ -96,7 +98,7 @@ export default async function GaleriaVideosPage() {
               <div>
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Vídeos por link</h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Links externos ou incorporados, como vídeos do YouTube.
+                  Links externos ou incorporados, como vídeos do YouTube. Use subir/descer para mudar a sequência pública.
                 </p>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -108,18 +110,19 @@ export default async function GaleriaVideosPage() {
             <div className="p-6 text-sm text-slate-600 dark:text-slate-300">Nenhum vídeo por link cadastrado ainda.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[920px]">
+              <table className="w-full min-w-[1040px]">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-[0.14em] text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
                     <th className="p-4">Vídeo</th>
                     <th className="p-4">Modo</th>
+                    <th className="p-4">Ordem</th>
                     <th className="p-4">Link</th>
                     <th className="p-4">Cadastro</th>
                     <th className="p-4">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {videos.map((video) => (
+                  {videos.map((video, index) => (
                     <tr key={video.id} className="border-b border-slate-100 align-top last:border-b-0 dark:border-slate-800/70">
                       <td className="p-4">
                         <div className="flex items-start gap-3">
@@ -137,6 +140,9 @@ export default async function GaleriaVideosPage() {
                       <td className="p-4">
                         <Badge tone="sky">{formatVideoMode(video.modoExibicao)}</Badge>
                       </td>
+                      <td className="p-4">
+                        <Badge tone="slate">#{video.ordem}</Badge>
+                      </td>
                       <td className="p-4 text-sm">
                         <span className="block max-w-[260px] truncate rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                           {video.url}
@@ -144,7 +150,15 @@ export default async function GaleriaVideosPage() {
                       </td>
                       <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{formatDate(video.dataPublicacao)}</td>
                       <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
-                        {canManageVideos ? <VideoActions video={video} /> : "Sem permissão"}
+                        {canManageVideos ? (
+                          <VideoActions
+                            video={video}
+                            prevOrdem={videos[index - 1]?.ordem ?? null}
+                            nextOrdem={videos[index + 1]?.ordem ?? null}
+                          />
+                        ) : (
+                          "Sem permissão"
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -160,7 +174,7 @@ export default async function GaleriaVideosPage() {
               <div>
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Uploads de áudio/vídeo</h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Arquivos enviados diretamente para a galeria.
+                  Arquivos enviados diretamente para a galeria. A ordem também define a sequência na página pública.
                 </p>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -172,18 +186,19 @@ export default async function GaleriaVideosPage() {
             <div className="p-6 text-sm text-slate-600 dark:text-slate-300">Nenhum upload de áudio ou vídeo cadastrado ainda.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px]">
+              <table className="w-full min-w-[980px]">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-[0.14em] text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
                     <th className="p-4">Mídia</th>
                     <th className="p-4">Tipo</th>
                     <th className="p-4">Data</th>
+                    <th className="p-4">Ordem</th>
                     <th className="p-4">Arquivo</th>
                     <th className="p-4">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...videosUpload, ...audiosUpload].map((midia) => (
+                  {uploads.map((midia, index) => (
                     <tr key={midia.id} className="border-b border-slate-100 align-top last:border-b-0 dark:border-slate-800/70">
                       <td className="p-4">
                         <div className="flex items-start gap-3">
@@ -206,12 +221,23 @@ export default async function GaleriaVideosPage() {
                       <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
                         {formatDate(midia.dataReferencia ?? midia.dataUpload)}
                       </td>
+                      <td className="p-4">
+                        <Badge tone="slate">#{midia.ordem}</Badge>
+                      </td>
                       <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
                         <p>{fileTypeLabel(midia.tipo)}</p>
                         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{formatBytes(midia.tamanho)}</p>
                       </td>
                       <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
-                        {canManageMedia ? <MidiaActions midia={midia} /> : "Sem permissão"}
+                        {canManageMedia ? (
+                          <MidiaActions
+                            midia={midia}
+                            prevOrdem={uploads[index - 1]?.ordem ?? null}
+                            nextOrdem={uploads[index + 1]?.ordem ?? null}
+                          />
+                        ) : (
+                          "Sem permissão"
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -252,11 +278,12 @@ function ResumoCard({
   );
 }
 
-function Badge({ children, tone }: { children: ReactNode; tone: "emerald" | "amber" | "sky" }) {
+function Badge({ children, tone }: { children: ReactNode; tone: "emerald" | "amber" | "sky" | "slate" }) {
   const toneClasses = {
     emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900/60",
     amber: "bg-amber-50 text-amber-700 ring-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900/60",
-    sky: "bg-sky-50 text-sky-700 ring-sky-100 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900/60"
+    sky: "bg-sky-50 text-sky-700 ring-sky-100 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900/60",
+    slate: "bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700"
   }[tone];
 
   return (

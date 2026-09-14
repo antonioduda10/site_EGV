@@ -17,7 +17,14 @@ type AlbumOption = {
   nome: string;
 };
 
-export function MidiaActions({ midia, albumOptions = [] }: { midia: Midia; albumOptions?: AlbumOption[] }) {
+type MidiaActionsProps = {
+  midia: Midia;
+  albumOptions?: AlbumOption[];
+  prevOrdem?: number | null;
+  nextOrdem?: number | null;
+};
+
+export function MidiaActions({ midia, albumOptions = [], prevOrdem, nextOrdem }: MidiaActionsProps) {
   const [editando, setEditando] = useState(false);
   const [titulo, setTitulo] = useState(midia.titulo);
   const [descricao, setDescricao] = useState(midia.descricao ?? "");
@@ -25,10 +32,47 @@ export function MidiaActions({ midia, albumOptions = [] }: { midia: Midia; album
   const [ordem, setOrdem] = useState(midia.ordem ?? 0);
   const [albumId, setAlbumId] = useState(midia.albumId ?? "");
   const [msg, setMsg] = useState<string | null>(null);
-  const [loadingAction, setLoadingAction] = useState<"salvar" | "remover" | null>(null);
+  const [loadingAction, setLoadingAction] = useState<"subir" | "descer" | "salvar" | "remover" | null>(null);
   const router = useRouter();
+  const hasOrderControls = prevOrdem !== undefined || nextOrdem !== undefined;
   const fieldClass =
     "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-500 dark:focus:ring-brand-900/40 dark:disabled:bg-slate-900";
+
+  const mover = async (move: "up" | "down") => {
+    if (loadingAction) return;
+    setMsg(null);
+    setLoadingAction(move === "up" ? "subir" : "descer");
+    try {
+      const response = await fetch(`/api/midia/${midia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          move,
+          scope: "audio-video"
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok) {
+        router.refresh();
+      } else {
+        setMsg(data.error ?? "Erro ao atualizar ordem.");
+      }
+    } catch {
+      setMsg("Erro de conexão ao atualizar ordem.");
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const subir = async () => {
+    if (prevOrdem === null || prevOrdem === undefined) return;
+    await mover("up");
+  };
+
+  const descer = async () => {
+    if (nextOrdem === null || nextOrdem === undefined) return;
+    await mover("down");
+  };
 
   const salvar = async () => {
     if (loadingAction) return;
@@ -155,6 +199,28 @@ export function MidiaActions({ midia, albumOptions = [] }: { midia: Midia; album
 
   return (
     <div className="flex min-w-[120px] flex-col gap-2 text-xs">
+      {hasOrderControls && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={subir}
+            disabled={prevOrdem === null || prevOrdem === undefined || Boolean(loadingAction)}
+            className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+            aria-label={`Subir mídia ${midia.titulo}`}
+          >
+            {loadingAction === "subir" ? "Subindo..." : "Subir"}
+          </button>
+          <button
+            type="button"
+            onClick={descer}
+            disabled={nextOrdem === null || nextOrdem === undefined || Boolean(loadingAction)}
+            className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+            aria-label={`Descer mídia ${midia.titulo}`}
+          >
+            {loadingAction === "descer" ? "Descendo..." : "Descer"}
+          </button>
+        </div>
+      )}
       <button
         type="button"
         onClick={() => setEditando(true)}

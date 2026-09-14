@@ -5,6 +5,8 @@ import { Permissions } from "@/lib/permissions";
 import { deleteFile } from "@/lib/uploads";
 import { logAuditoria } from "@/lib/audit";
 
+const validMoveDirections = ["up", "down"] as const;
+
 function parseDateOnlyToUtc(value: string) {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -25,6 +27,24 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   // JSON pode vir vazio; aplica fallback.
   const body = await request.json().catch(() => ({}));
+  const moveDirection = String(body?.move ?? "").toLowerCase();
+
+  if (validMoveDirections.includes(moveDirection as (typeof validMoveDirections)[number])) {
+    const midia = await reorderMedia(params.id, moveDirection as "up" | "down", body?.scope);
+    if (!midia) {
+      return NextResponse.json({ error: "Mídia não encontrada" }, { status: 404 });
+    }
+
+    await logAuditoria({
+      acao: "ORDENAR",
+      entidade: "midia",
+      registroId: midia.id,
+      usuarioId: session.user.id
+    });
+
+    return NextResponse.json(midia);
+  }
+
   const titulo = String(body?.titulo ?? "").trim();
   const descricao = String(body?.descricao ?? "").trim();
   const dataReferenciaRaw = body?.dataReferencia;
@@ -51,7 +71,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!Number.isFinite(parsed)) {
       return NextResponse.json({ error: "Ordem inválida" }, { status: 400 });
     }
-    ordem = Math.max(0, parsed);
+    ordem = Math.max(0, Math.trunc(parsed));
   }
 
   let albumId: string | null | undefined = undefined;
@@ -87,6 +107,42 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   });
 
   return NextResponse.json(midia);
+}
+
+async function reorderMedia(midiaId: string, direction: "up" | "down", scope: unknown) {
+  const where =
+    scope === "audio-video"
+      ? {
+          OR: [{ tipo: { startsWith: "audio/" } }, { tipo: { startsWith: "video/" } }]
+        }
+      : undefined;
+
+  const midias = await db.midia.findMany({
+    where,
+    select: { id: true },
+    orderBy: [{ ordem: "asc" }, { dataUpload: "desc" }, { id: "asc" }]
+  });
+  const currentIndex = midias.findIndex((midia) => midia.id === midiaId);
+  if (currentIndex === -1) return null;
+
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  if (targetIndex < 0 || targetIndex >= midias.length) {
+    return db.midia.findUnique({ where: { id: midiaId } });
+  }
+
+  const ordered = [...midias];
+  [ordered[currentIndex], ordered[targetIndex]] = [ordered[targetIndex], ordered[currentIndex]];
+
+  await db.$transaction(
+    ordered.map((midia, index) =>
+      db.midia.update({
+        where: { id: midia.id },
+        data: { ordem: index }
+      })
+    )
+  );
+
+  return db.midia.findUnique({ where: { id: midiaId } });
 }
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {

@@ -27,9 +27,6 @@ prisma/migrations/
 
 # Documentação interna / arquivos de projeto
 /docs/
-!/docs/
-/docs/*
-!/docs/incremento-II/
 AGENTS.md
 portal_egv.backup
 

@@ -16,43 +16,48 @@ type Banner = {
 
 export function BannerCarousel({ banners, intervalMs = 5000 }: { banners: Banner[]; intervalMs?: number }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const safeIntervalMs = Number.isFinite(intervalMs) ? Math.min(15000, Math.max(3000, intervalMs)) : 5000;
 
   useEffect(() => {
-    if (!isAutoPlaying || banners.length <= 1) return;
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pauseForReducedMotion = () => { setReducedMotion(preference.matches); };
+    pauseForReducedMotion();
+    preference.addEventListener("change", pauseForReducedMotion);
+    return () => preference.removeEventListener("change", pauseForReducedMotion);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion || banners.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % banners.length);
     }, safeIntervalMs);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, banners.length, safeIntervalMs]);
+  }, [reducedMotion, banners.length, safeIntervalMs, currentIndex]);
 
   if (banners.length === 0) {
     return (
-      <div className="relative w-full h-64 md:h-96 bg-slate-100 rounded-lg flex items-center justify-center">
-        <p className="text-slate-500">Nenhum banner configurado</p>
+      <div className="relative w-full h-64 md:h-96 bg-slate-100 rounded-lg flex items-center justify-center dark:bg-slate-900">
+        <p className="text-slate-600 dark:text-slate-300">Nenhum banner configurado</p>
       </div>
     );
   }
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
-    setIsAutoPlaying(false);
   };
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % banners.length);
-    setIsAutoPlaying(false);
   };
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
-    setIsAutoPlaying(false);
   };
 
-  const currentBanner = banners[currentIndex];
+  const currentBanner = banners[currentIndex % banners.length];
   const imageUrl = toPublicUrl(currentBanner.imagem);
 
   const bannerContent = (
@@ -68,7 +73,7 @@ export function BannerCarousel({ banners, intervalMs = 5000 }: { banners: Banner
 
       {/* Overlay com texto */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end">
-        <div className="p-6 text-white">
+        <div className={`p-6 text-white ${banners.length > 1 ? "pb-20" : ""}`}>
           <h2 className="text-2xl md:text-3xl font-bold">{currentBanner.titulo}</h2>
           {currentBanner.descricao && (
             <p className="mt-2 text-sm md:text-base opacity-90">{currentBanner.descricao}</p>
@@ -94,7 +99,7 @@ export function BannerCarousel({ banners, intervalMs = 5000 }: { banners: Banner
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white text-slate-900 hover:bg-slate-100 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
             aria-label="Banner anterior"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +108,7 @@ export function BannerCarousel({ banners, intervalMs = 5000 }: { banners: Banner
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white text-slate-900 hover:bg-slate-100 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
             aria-label="Próximo banner"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,16 +117,17 @@ export function BannerCarousel({ banners, intervalMs = 5000 }: { banners: Banner
           </button>
 
           {/* Indicadores */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-2 left-1/2 flex max-w-[calc(100%-2rem)] -translate-x-1/2 gap-1 overflow-x-auto rounded-full bg-black/50 px-1">
             {banners.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`z-20 w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex ? "bg-white w-8" : "bg-white/50"
-                }`}
+                className="z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+                aria-current={index === currentIndex % banners.length ? "true" : undefined}
                 aria-label={`Ir para slide ${index + 1}`}
-              />
+              >
+                <span aria-hidden="true" className={`h-2 rounded-full ${index === currentIndex % banners.length ? "w-6 bg-white" : "w-2 bg-white/70"}`} />
+              </button>
             ))}
           </div>
         </>

@@ -7,6 +7,7 @@ import { ConsentBanner } from "@/components/consent-banner";
 import { PageviewTracker } from "@/components/pageview-tracker";
 import { db } from "@/lib/db";
 import { buildBrandThemeVariables } from "@/lib/theme";
+import { AuthSessionProvider } from "@/components/auth-session-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -63,16 +64,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body style={bodyStyle} className="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100" suppressHydrationWarning>
-        <a className="skip-link" href="#conteudo">
-          Pular para o conteúdo
-        </a>
-        <Header menuLinks={menuLinks} logoUrl={logoUrl} />
-        <main id="conteudo" className="min-h-screen bg-slate-50 dark:bg-slate-950">
-          {children}
-        </main>
-        <Footer data={rodapeData} logoUrl={logoUrl} />
-        <ConsentBanner />
-        <PageviewTracker />
+        <AuthSessionProvider>
+          <a className="skip-link" href="#conteudo">
+            Pular para o conteúdo
+          </a>
+          <Header menuLinks={menuLinks} logoUrl={logoUrl} />
+          <main id="conteudo" tabIndex={-1} className="min-h-screen bg-slate-50 dark:bg-slate-950">
+            {children}
+          </main>
+          <Footer data={rodapeData} logoUrl={logoUrl} />
+          <ConsentBanner />
+          <PageviewTracker />
+        </AuthSessionProvider>
       </body>
     </html>
   );

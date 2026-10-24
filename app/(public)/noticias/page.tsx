@@ -58,6 +58,7 @@ export default async function NoticiasPage({
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <form className="mt-6 flex flex-col gap-2 md:flex-row" role="search" aria-label="Buscar notícias">
         <input
+          aria-label="Buscar notícias"
           name="q"
           placeholder="Buscar notícias"
           defaultValue={query}

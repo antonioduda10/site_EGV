@@ -1,0 +1,84 @@
+{
+  "unit": {
+    "passed": 110,
+    "failed": 0,
+    "total": 110
+  },
+  "e2e": {
+    "startTime": "2026-10-18T00:33:43.411Z",
+    "duration": 171804.25199999998,
+    "expected": 23,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "coverage": {
+    "lines": {
+      "total": 682,
+      "covered": 665,
+      "skipped": 0,
+      "pct": 97.5
+    },
+    "statements": {
+      "total": 682,
+      "covered": 665,
+      "skipped": 0,
+      "pct": 97.5
+    },
+    "functions": {
+      "total": 27,
+      "covered": 25,
+      "skipped": 0,
+      "pct": 92.59
+    },
+    "branches": {
+      "total": 214,
+      "covered": 190,
+      "skipped": 0,
+      "pct": 88.78
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "checks": [
+    {
+      "command": "npm test",
+      "exitCode": 0,
+      "startedAt": "2026-10-18T00:25:14.438Z",
+      "finishedAt": "2026-10-18T00:25:25.231Z",
+      "log": "testes.txt"
+    },
+    {
+      "command": "npm run test:coverage",
+      "exitCode": 0,
+      "startedAt": "2026-10-18T00:25:25.233Z",
+      "finishedAt": "2026-10-18T00:25:41.688Z",
+      "log": "cobertura.txt"
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "startedAt": "2026-10-18T00:25:41.691Z",
+      "finishedAt": "2026-10-18T00:26:01.314Z",
+      "log": "lint.txt"
+    },
+    {
+      "command": "npx tsc --noEmit --incremental false",
+      "exitCode": 0,
+      "startedAt": "2026-10-18T00:26:01.320Z",
+      "finishedAt": "2026-10-18T00:26:33.816Z",
+      "log": "typescript.txt"
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0,
+      "startedAt": "2026-10-18T00:26:33.818Z",
+      "finishedAt": "2026-10-18T00:28:27.321Z",
+      "log": "build.txt"
+    }
+  ]
+}

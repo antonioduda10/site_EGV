@@ -58,25 +58,28 @@ export function DocumentosForm() {
       </div>
 
       <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_0.6fr_0.8fr]">
-        <input name="nome" placeholder="Nome" required className={fieldClass} disabled={isUploading} />
-        <input name="categoria" placeholder="Categoria" required className={fieldClass} disabled={isUploading} />
-        <input name="ano" type="number" placeholder="Ano" required className={fieldClass} disabled={isUploading} />
-        <input
-          name="ordem"
-          type="number"
-          placeholder="Ordem"
-          defaultValue={0}
-          min={0}
-          className={fieldClass}
-          disabled={isUploading}
-        />
+        <label className="space-y-1 text-sm font-medium">Nome
+          <input name="nome" placeholder="Nome" required className={fieldClass} disabled={isUploading} />
+        </label>
+        <label className="space-y-1 text-sm font-medium">Categoria
+          <input name="categoria" placeholder="Categoria" required className={fieldClass} disabled={isUploading} />
+        </label>
+        <label className="space-y-1 text-sm font-medium">Ano
+          <input name="ano" type="number" placeholder="Ano" required className={fieldClass} disabled={isUploading} />
+        </label>
+        <label className="space-y-1 text-sm font-medium">Ordem
+          <input name="ordem" type="number" placeholder="Ordem" defaultValue={0} min={0} className={fieldClass} disabled={isUploading} />
+        </label>
       </div>
 
-      <input name="descricao" placeholder="Descrição" className={`${fieldClass} mt-3`} disabled={isUploading} />
+      <label className="mt-3 block space-y-1 text-sm font-medium">Descrição
+        <input name="descricao" placeholder="Descrição" className={fieldClass} disabled={isUploading} />
+      </label>
 
       <div className="mt-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Arquivo</label>
+        <label htmlFor="documento-arquivo" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Arquivo</label>
         <input
+          id="documento-arquivo"
           name="arquivo"
           type="file"
           required
@@ -97,6 +100,7 @@ export function DocumentosForm() {
       </button>
       {status && (
         <p
+          role={statusType === "error" ? "alert" : "status"}
           className={`mt-4 rounded-xl px-3 py-2 text-sm ${
             statusType === "success"
               ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"

@@ -15,7 +15,7 @@ out/
 .env*.local
 
 # Uploads (arquivos gerados em runtime)
-uploads/
+/uploads/
 
 # Banco / Prisma
 prisma/migrations/
@@ -27,6 +27,9 @@ prisma/migrations/
 
 # Documentação interna / arquivos de projeto
 /docs/
+!/docs/
+/docs/*
+!/docs/incremento-II/
 AGENTS.md
 portal_egv.backup
 
@@ -36,6 +39,11 @@ scripts/
 # Logs
 *.log
 npm-debug.log*
+
+# Relatorios locais de testes (as evidencias selecionadas ficam em docs/)
+coverage/
+test-results/
+playwright-report/
 
 # OS
 .DS_Store

@@ -22,7 +22,7 @@ export default async function SecretariaPage() {
   const grupos = groupBySetor(servidores);
 
   return (
-    <main className="bg-slate-50 dark:bg-slate-950">
+    <div className="bg-slate-50 dark:bg-slate-950">
       <PublicPageHero
         eyebrow="Atendimento e gestão escolar"
         title="Secretaria e equipe gestora"
@@ -60,7 +60,7 @@ export default async function SecretariaPage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 

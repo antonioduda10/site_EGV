@@ -6,6 +6,7 @@ import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
 import { normalizeUploadAssetUrl, rewriteUploadUrlsInHtml } from "@/lib/content-url";
 import { normalizeNewsCoverSize } from "@/lib/news-cover-size";
+import { withApiErrors } from "@/lib/api-errors";
 
 function escapeHtml(value: string) {
   return value
@@ -31,7 +32,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   return NextResponse.json(noticia);
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withApiErrors(async (request: Request, { params }: { params: { id: string } }) => {
   const { allowed, session } = await requirePermission(Permissions.NEWS_WRITE);
   if (!allowed || !session) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -74,9 +75,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   });
 
   return NextResponse.json(noticia);
-}
+}, "noticias.editar");
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export const DELETE = withApiErrors(async (_: Request, { params }: { params: { id: string } }) => {
   const { allowed, session } = await requirePermission(Permissions.NEWS_WRITE);
   if (!allowed || !session) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -91,4 +92,4 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
   });
 
   return NextResponse.json({ ok: true });
-}
+}, "noticias.excluir");

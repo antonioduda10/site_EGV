@@ -6,6 +6,7 @@ import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
 import { normalizeUploadAssetUrl, rewriteUploadUrlsInHtml } from "@/lib/content-url";
 import { normalizeNewsCoverSize } from "@/lib/news-cover-size";
+import { withApiErrors } from "@/lib/api-errors";
 
 function slugify(text: string) {
   // Normaliza o titulo para gerar o slug publico.
@@ -47,7 +48,7 @@ export async function GET() {
   return NextResponse.json(noticias);
 }
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   const { allowed, session } = await requirePermission(Permissions.NEWS_WRITE);
   if (!allowed || !session) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -82,4 +83,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(noticia, { status: 201 });
-}
+}, "noticias.criar");

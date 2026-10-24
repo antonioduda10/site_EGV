@@ -28,16 +28,18 @@ body {
   @apply bg-white text-slate-900 antialiased;
 }
 
-a {
-  @apply text-brand-600 hover:text-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-brand-300 dark:hover:text-brand-200 dark:focus-visible:ring-offset-slate-950;
+@layer base {
+  :where(a) {
+    @apply text-brand-600 hover:text-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-brand-300 dark:hover:text-brand-200 dark:focus-visible:ring-offset-slate-950;
+  }
 }
 
-button, input, select, textarea {
+button, input, select, textarea, summary {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950;
 }
 
 .skip-link {
-  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 rounded bg-white px-4 py-2 text-slate-900 shadow dark:bg-slate-900 dark:text-slate-100;
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] rounded bg-white px-4 py-2 text-slate-900 shadow dark:bg-slate-900 dark:text-slate-100;
 }
 
 ::selection {

@@ -1,0 +1,53 @@
+
+ RUN  v3.2.7 C:/Users/anton/OneDrive/Área de Trabalho/Cursos Duda/Sistemas/site_EGV
+      Coverage enabled with v8
+
+ ✓ tests/integration/documentos.test.ts (20 tests) 430ms
+ ✓ tests/unit/password.test.ts (2 tests) 2440ms
+   ✓ Senhas com bcrypt real > PASSWORD-01 gera hash verificavel sem armazenar texto puro  1584ms
+   ✓ Senhas com bcrypt real > PASSWORD-02 usa salts distintos  843ms
+ ✓ tests/integration/noticias.test.ts (29 tests) 157ms
+ ✓ tests/integration/login.test.ts (5 tests) 62ms
+ ✓ tests/unit/auth.test.ts (24 tests) 65ms
+ ✓ tests/integration/uploads.test.ts (4 tests) 70ms
+ ✓ tests/unit/rbac.test.ts (11 tests) 27ms
+ ✓ tests/unit/api-errors.test.ts (4 tests) 51ms
+ ✓ tests/unit/guards.test.ts (11 tests) 40ms
+
+ Test Files  9 passed (9)
+      Tests  110 passed (110)
+   Start at  21:25:27
+   Duration  11.49s (transform 1.10s, setup 774ms, collect 3.27s, tests 3.34s, environment 9ms, prepare 4.67s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    97.5 |    88.78 |   92.59 |    97.5 |                   
+ ...api/auth/login |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...api/documentos |     100 |    79.16 |     100 |     100 |                   
+  route.ts         |     100 |    79.16 |     100 |     100 | 34-37,69          
+ ...ocumentos/[id] |     100 |     93.1 |     100 |     100 |                   
+  route.ts         |     100 |     93.1 |     100 |     100 | 29,50             
+ app/api/noticias  |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ .../noticias/[id] |   80.48 |    81.48 |   33.33 |   80.48 |                   
+  route.ts         |   80.48 |    81.48 |   33.33 |   80.48 | 11-25,62,64       
+ ...s/[id]/aprovar |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...viar-aprovacao |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ .../[id]/rejeitar |     100 |    83.33 |     100 |     100 |                   
+  route.ts         |     100 |    83.33 |     100 |     100 | 18                
+ ...oads/[...path] |     100 |    71.42 |     100 |     100 |                   
+  route.ts         |     100 |    71.42 |     100 |     100 | 27,39             
+ lib               |    99.6 |    89.28 |     100 |    99.6 |                   
+  api-errors.ts    |     100 |     90.9 |     100 |     100 | 27                
+  auth.ts          |   99.28 |     85.1 |     100 |   99.28 | 27                
+  password.ts      |     100 |      100 |     100 |     100 |                   
+  rbac.ts          |     100 |       90 |     100 |     100 | 46                
+  require-auth.ts  |     100 |      100 |     100 |     100 |                   
+  ...permission.ts |     100 |      100 |     100 |     100 |                   
+  ...ion-policy.ts |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------

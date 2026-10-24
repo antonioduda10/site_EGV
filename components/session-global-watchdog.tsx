@@ -1,71 +1,89 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-
-const CHECK_INTERVAL_MS = 15000;
-
-type SessionPayload = {
-  invalidated?: boolean;
-  user?: {
-    id?: string;
-  };
-} | null;
+import { signOut, useSession } from "next-auth/react";
+import { SESSION_ACTIVITY_INTERVAL_MS, SESSION_IDLE_TIMEOUT_MS } from "@/lib/session-policy";
 
 export function SessionGlobalWatchdog() {
+  const { data: session, status, update } = useSession();
   const pathname = usePathname();
+  const lastInteraction = useRef(0);
+  const lastRenewedInteraction = useRef(0);
+  const endingSession = useRef(false);
+  const currentSession = useRef(session);
+  const currentPath = useRef(pathname);
 
   useEffect(() => {
+    currentSession.current = session;
+    currentPath.current = pathname;
+  }, [session, pathname]);
+
+  const invalidated = session?.invalidated;
+  const invalidatedReason = session?.invalidatedReason;
+
+  useEffect(() => {
+    if (status === "unauthenticated") endingSession.current = false;
+    if (status !== "authenticated") return;
     let cancelled = false;
-    let inFlight = false;
-
-    const checkSession = async () => {
-      if (inFlight) return;
-      inFlight = true;
+    let updating = false;
+    const endSession = async (idle: boolean) => {
+      if (endingSession.current) return;
+      endingSession.current = true;
       try {
-        const response = await fetch("/api/auth/session", {
-          method: "GET",
-          cache: "no-store",
-          credentials: "same-origin"
+        await signOut({
+          redirect: currentPath.current?.startsWith("/dashboard") ?? false,
+          callbackUrl: idle ? "/login?reason=session-expired" : "/login?reason=session-invalidated"
         });
-
-        if (!response.ok || cancelled) return;
-
-        const session = (await response.json()) as SessionPayload;
-        if (cancelled) return;
-
-        if (session?.invalidated && pathname !== "/login") {
-          window.location.replace("/login?reason=session-invalidated");
-        }
       } catch {
-        // Em falhas transitórias de rede, tentaremos novamente no próximo ciclo.
-      } finally {
-        inFlight = false;
+        endingSession.current = false;
       }
     };
 
-    void checkSession();
+    if (invalidated) {
+      void endSession(invalidatedReason === "idle");
+      return;
+    }
 
-    const intervalId = window.setInterval(() => {
-      if (document.visibilityState === "visible") {
-        void checkSession();
+    const checkActivity = async () => {
+      if (cancelled || updating || endingSession.current) return;
+      const activity = Math.max(lastInteraction.current, currentSession.current?.lastActivityAt ?? Date.now());
+      if (Date.now() - activity >= SESSION_IDLE_TIMEOUT_MS) {
+        await endSession(true);
+        return;
       }
-    }, CHECK_INTERVAL_MS);
+      // Polling and rendering are not user activity: renew only after an interaction.
+      if (lastInteraction.current <= lastRenewedInteraction.current) return;
+      updating = true;
+      const interaction = lastInteraction.current;
+      try {
+        const renewed = await update({ activity: true });
+        if (renewed?.user?.id && !renewed.invalidated) lastRenewedInteraction.current = interaction;
+      } catch {
+        // A temporary connection failure does not sign the user out.
+      } finally { updating = false; }
+    };
+    const recordInteraction = () => {
+      lastInteraction.current = Date.now();
+      const lastActivityAt = currentSession.current?.lastActivityAt ?? Date.now();
+      if (Date.now() - lastActivityAt >= SESSION_ACTIVITY_INTERVAL_MS) void checkActivity();
+    };
 
+    const events = ["pointerdown", "pointermove", "keydown", "touchstart", "wheel"] as const;
+    for (const event of events) window.addEventListener(event, recordInteraction, { passive: true });
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        void checkSession();
-      }
+      if (document.visibilityState === "visible") void checkActivity();
     };
-
     document.addEventListener("visibilitychange", onVisibilityChange);
+    const interval = window.setInterval(() => { void checkActivity(); }, SESSION_ACTIVITY_INTERVAL_MS);
 
     return () => {
       cancelled = true;
-      window.clearInterval(intervalId);
+      window.clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      for (const event of events) window.removeEventListener(event, recordInteraction);
     };
-  }, [pathname]);
+  }, [invalidated, invalidatedReason, status, update]);
 
   return null;
 }

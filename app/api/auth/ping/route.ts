@@ -39,7 +39,7 @@ async function getSessionVersion(userId: string) {
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.id || session.invalidated) {
-    return NextResponse.json({ ok: false, invalidated: true, authenticated: false });
+    return NextResponse.json({ ok: false, invalidated: true, authenticated: false, reason: session?.invalidatedReason });
   }
 
   const sessionVersion = await getSessionVersion(session.user.id);

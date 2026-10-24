@@ -51,7 +51,7 @@ export function Footer({ data, logoUrl }: { data?: FooterData; logoUrl?: string 
   const mapUrl = mapVisible ? buildMapEmbedUrl(escola.endereco ?? "", atendimento.mapaUrl ?? "") : "";
   const resolvedLogo = logoUrl?.trim() || "";
   return (
-    <footer className="bg-slate-900 text-slate-200 mt-16">
+    <footer className="bg-slate-900 text-slate-200 mt-16 [&_a]:text-blue-500 [&_a:hover]:text-blue-400 [&_a:hover]:underline [&_a]:underline-offset-4 [&_a:focus-visible]:text-blue-400 [&_a:focus-visible]:underline">
       <div className="max-w-7xl mx-auto px-4 py-8 grid gap-8 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="flex items-center gap-3 mb-3">
@@ -135,7 +135,7 @@ export function Footer({ data, logoUrl }: { data?: FooterData; logoUrl?: string 
                 rel={social.newTab ? "noreferrer" : undefined}
                 className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
               >
-                <span className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">
+                <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full">
                   {renderSocialIcon(social.nome, social.href)}
                 </span>
                 {social.nome}
@@ -201,7 +201,7 @@ function renderSocialIcon(nome: string, href: string) {
 
   if (key.includes("facebook") || key.includes("fb.com")) {
     return (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <svg className="h-7 w-7 bg-[#1877f2] p-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
         <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
       </svg>
     );
@@ -209,7 +209,7 @@ function renderSocialIcon(nome: string, href: string) {
 
   if (key.includes("instagram") || key.includes("instagr.am")) {
     return (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <svg className="h-7 w-7 bg-[linear-gradient(35deg,#feda75_0%,#fa7e1e_20%,#d62976_50%,#962fbf_75%,#4f5bd5_100%)] p-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 7.2a4.8 4.8 0 100 9.6 4.8 4.8 0 000-9.6zm0 7.9a3.1 3.1 0 110-6.2 3.1 3.1 0 010 6.2z" />
         <path d="M16.9 2H7.1A5.1 5.1 0 002 7.1v9.8A5.1 5.1 0 007.1 22h9.8a5.1 5.1 0 005.1-5.1V7.1A5.1 5.1 0 0016.9 2zm3.4 14.9a3.4 3.4 0 01-3.4 3.4H7.1a3.4 3.4 0 01-3.4-3.4V7.1a3.4 3.4 0 013.4-3.4h9.8a3.4 3.4 0 013.4 3.4v9.8z" />
         <circle cx="17.3" cy="6.7" r="1.1" />
@@ -219,7 +219,7 @@ function renderSocialIcon(nome: string, href: string) {
 
   if (key.includes("youtube") || key.includes("youtu.be")) {
     return (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <svg className="h-7 w-7 bg-white p-1 text-[#ff0000]" fill="currentColor" viewBox="0 0 24 24">
         <path d="M21 8.5a3 3 0 00-2.1-2.1C17 6 12 6 12 6s-5 0-6.9.4A3 3 0 003 8.5 31 31 0 003 12a31 31 0 00.1 3.5 3 3 0 002.1 2.1C7 18 12 18 12 18s5 0 6.9-.4a3 3 0 002.1-2.1A31 31 0 0021 12a31 31 0 000-3.5zM10 15V9l5 3-5 3z" />
       </svg>
     );
@@ -227,22 +227,25 @@ function renderSocialIcon(nome: string, href: string) {
 
   if (key.includes("linkedin")) {
     return (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <svg className="h-7 w-7 bg-[#0a66c2] p-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
         <path d="M4.98 3.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.9-2.1 4-2.1 4.2 0 5 2.8 5 6.4V21h-4v-5.2c0-1.2 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z" />
       </svg>
     );
   }
 
   if (key.includes("tiktok")) {
+    const notePath = "M14 3h3.2A4.8 4.8 0 0021 6.8V10a8 8 0 01-4-1.1V15a6 6 0 11-6-6c.3 0 .7 0 1 .1v3.2a2.8 2.8 0 102.8 2.8V3z";
     return (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M14 3h3.2A4.8 4.8 0 0021 6.8V10a8 8 0 01-4-1.1V15a6 6 0 11-6-6c.3 0 .7 0 1 .1v3.2a2.8 2.8 0 102.8 2.8V3z" />
+      <svg className="h-7 w-7 bg-black p-1 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <path fill="#25f4ee" transform="translate(-0.8 -0.5)" d={notePath} />
+        <path fill="#fe2c55" transform="translate(0.8 0.5)" d={notePath} />
+        <path d={notePath} />
       </svg>
     );
   }
 
   const initials = nome.trim().slice(0, 1).toUpperCase() || "#";
-  return <span className="text-[10px] font-semibold leading-none">{initials}</span>;
+  return <span className="flex h-7 w-7 items-center justify-center bg-slate-800 text-[10px] font-semibold leading-none text-white">{initials}</span>;
 }
 
 function buildMapEmbedUrl(address: string, fixedUrl: string) {

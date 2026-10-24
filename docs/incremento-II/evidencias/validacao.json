@@ -1,0 +1,37 @@
+[
+  {
+    "command": "npm test",
+    "exitCode": 0,
+    "startedAt": "2026-10-18T00:25:14.438Z",
+    "finishedAt": "2026-10-18T00:25:25.231Z",
+    "log": "testes.txt"
+  },
+  {
+    "command": "npm run test:coverage",
+    "exitCode": 0,
+    "startedAt": "2026-10-18T00:25:25.233Z",
+    "finishedAt": "2026-10-18T00:25:41.688Z",
+    "log": "cobertura.txt"
+  },
+  {
+    "command": "npm run lint",
+    "exitCode": 0,
+    "startedAt": "2026-10-18T00:25:41.691Z",
+    "finishedAt": "2026-10-18T00:26:01.314Z",
+    "log": "lint.txt"
+  },
+  {
+    "command": "npx tsc --noEmit --incremental false",
+    "exitCode": 0,
+    "startedAt": "2026-10-18T00:26:01.320Z",
+    "finishedAt": "2026-10-18T00:26:33.816Z",
+    "log": "typescript.txt"
+  },
+  {
+    "command": "npm run build",
+    "exitCode": 0,
+    "startedAt": "2026-10-18T00:26:33.818Z",
+    "finishedAt": "2026-10-18T00:28:27.321Z",
+    "log": "build.txt"
+  }
+]

@@ -49,7 +49,7 @@ export async function DashboardSidebar() {
       <nav className="space-y-4" aria-label="Menu do painel">
         {showAdminMenu && (
           <div className="space-y-1">
-            <div className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">Administração</div>
+            <div className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">Administração</div>
             <DashboardNavLink href="/dashboard/usuarios" label="Usuários" />
           </div>
         )}

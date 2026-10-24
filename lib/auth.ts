@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "./db";
 import { verifyPassword } from "./password";
+import { SESSION_IDLE_TIMEOUT_MS } from "./session-policy";
 
 let activeSessionTableReady = false;
 
@@ -72,7 +73,7 @@ export const authOptions: NextAuthOptions = {
         const user = await db.usuario.findUnique({
           where: { email: credentials.email }
         });
-        if (!user) return null;
+        if (!user || user.status !== "ATIVO") return null;
         const valid = await verifyPassword(credentials.password, user.senhaHash);
         if (!valid) return null;
         const dbSessionVersion = await getSessionVersion(user.id);
@@ -87,15 +88,28 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      const now = Date.now();
       if (user) {
         token.userId = user.id;
         token.name = user.name;
         token.email = user.email;
         token.sessionVersion = (user as { sessionVersion?: number }).sessionVersion ?? 1;
+        token.lastActivityAt = now;
       }
 
       if (token.userId) {
+        // Older valid cookies receive a grace window without requiring another login.
+        token.lastActivityAt ??= now;
+        if (now - token.lastActivityAt >= SESSION_IDLE_TIMEOUT_MS) {
+          token.userId = null;
+          token.roles = [];
+          token.permissions = [];
+          token.superAdmin = false;
+          token.invalidated = true;
+          token.invalidatedReason = "idle";
+          return token;
+        }
         const user = await db.usuario.findUnique({
           where: { id: String(token.userId) },
           include: {
@@ -104,12 +118,13 @@ export const authOptions: NextAuthOptions = {
           }
         });
 
-        if (!user) {
+        if (!user || user.status !== "ATIVO") {
           token.userId = null;
           token.roles = [];
           token.permissions = [];
           token.superAdmin = false;
           token.invalidated = true;
+          token.invalidatedReason = "revoked";
           return token;
         }
 
@@ -121,6 +136,7 @@ export const authOptions: NextAuthOptions = {
           token.permissions = [];
           token.superAdmin = false;
           token.invalidated = true;
+          token.invalidatedReason = "revoked";
           return token;
         }
 
@@ -130,12 +146,16 @@ export const authOptions: NextAuthOptions = {
         token.superAdmin = user?.superAdmin ?? false;
         token.sessionVersion = dbSessionVersion;
         token.invalidated = false;
+        token.invalidatedReason = undefined;
+        if (trigger === "update" && session?.activity === true) token.lastActivityAt = now;
         await touchActiveSession(user.id, dbSessionVersion);
       }
       return token;
     },
     async session({ session, token }) {
       session.invalidated = Boolean(token.invalidated);
+      session.invalidatedReason = token.invalidatedReason;
+      session.lastActivityAt = token.lastActivityAt;
       session.user.id = (token.userId as string | null) ?? "";
       session.user.roles = token.roles as string[];
       session.user.permissions = token.permissions as string[];

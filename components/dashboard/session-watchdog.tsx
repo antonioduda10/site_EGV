@@ -9,6 +9,7 @@ const PERMISSIONS_STATE_KEY = "egv:permissions-state";
 type PingPayload = {
   invalidated?: boolean;
   authenticated?: boolean;
+  reason?: "idle" | "revoked";
 };
 
 export function SessionWatchdog() {
@@ -34,7 +35,7 @@ export function SessionWatchdog() {
         if (cancelled) return;
 
         if (session?.invalidated || session?.authenticated === false) {
-          window.location.replace("/login?reason=session-invalidated");
+          window.location.replace(session.reason === "idle" ? "/login?reason=session-expired" : "/login?reason=session-invalidated");
           return;
         }
 

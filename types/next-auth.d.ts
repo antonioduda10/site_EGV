@@ -3,6 +3,8 @@ import NextAuth from "next-auth";
 declare module "next-auth" {
   interface Session {
     invalidated?: boolean;
+    invalidatedReason?: "idle" | "revoked";
+    lastActivityAt?: number;
     user: {
       id: string;
       name?: string | null;
@@ -22,5 +24,7 @@ declare module "next-auth/jwt" {
     superAdmin?: boolean;
     sessionVersion?: number;
     invalidated?: boolean;
+    invalidatedReason?: "idle" | "revoked";
+    lastActivityAt?: number;
   }
 }

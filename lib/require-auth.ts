@@ -8,6 +8,7 @@ export async function requireAuth() {
     redirect("/login");
   }
   if (session.invalidated || !session.user?.id) {
+    if (session.invalidatedReason === "idle") redirect("/login?reason=session-expired");
     redirect("/login?reason=session-invalidated");
   }
   return session;

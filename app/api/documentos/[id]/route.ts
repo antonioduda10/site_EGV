@@ -5,8 +5,9 @@ import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { deleteFile } from "@/lib/uploads";
 import { logAuditoria } from "@/lib/audit";
+import { withApiErrors } from "@/lib/api-errors";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withApiErrors(async (request: Request, { params }: { params: { id: string } }) => {
   // Atualizacao exige permissao de documentos.
   const { allowed, session } = await requirePermission(Permissions.DOCS_WRITE);
   if (!allowed || !session) {
@@ -59,9 +60,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   });
 
   return NextResponse.json(updated);
-}
+}, "documentos.editar");
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export const DELETE = withApiErrors(async (_: Request, { params }: { params: { id: string } }) => {
   // Exclusao exige permissao de documentos.
   const { allowed, session } = await requirePermission(Permissions.DOCS_WRITE);
   if (!allowed || !session) {
@@ -86,4 +87,4 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
   });
 
   return NextResponse.json({ ok: true });
-}
+}, "documentos.excluir");

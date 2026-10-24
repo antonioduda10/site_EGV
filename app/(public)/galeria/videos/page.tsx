@@ -30,7 +30,7 @@ export default async function GaleriaVideosPublicaPage() {
   const totalMidias = videos.length + videosUpload.length + audios.length;
 
   return (
-    <main className="bg-slate-50 dark:bg-slate-950">
+    <div className="bg-slate-50 dark:bg-slate-950">
       <PublicPageHero
         eyebrow="Vídeos e áudios"
         title="Galeria de vídeos"
@@ -121,7 +121,7 @@ export default async function GaleriaVideosPublicaPage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 

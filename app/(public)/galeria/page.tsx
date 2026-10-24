@@ -16,7 +16,7 @@ export default async function GaleriaPublicaPage() {
   const textos = parsePublicTexts(await getPublicTextsJson());
 
   return (
-    <main className="bg-slate-50 dark:bg-slate-950">
+    <div className="bg-slate-50 dark:bg-slate-950">
       <PublicPageHero
         eyebrow={textos.galeria.eyebrow}
         title={textos.galeria.title}
@@ -51,7 +51,7 @@ export default async function GaleriaPublicaPage() {
           />
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

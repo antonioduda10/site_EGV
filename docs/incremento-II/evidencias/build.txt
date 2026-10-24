@@ -1,0 +1,175 @@
+  ▲ Next.js 14.2.5
+  - Environments: .env
+
+   Creating an optimized production build ...
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./app/(dashboard)/dashboard/banners/page.tsx
+115:27  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(dashboard)/dashboard/galeria/fotos/page.tsx
+188:27  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(dashboard)/dashboard/secretaria/page.tsx
+51:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(public)/eventos/page.tsx
+55:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(public)/galeria/fotos/page.tsx
+64:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+142:7  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(public)/noticias/page.tsx
+88:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(public)/noticias/[slug]/page.tsx
+69:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(public)/page.tsx
+184:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+271:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+344:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(public)/secretaria/page.tsx
+74:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/banner-carousel.tsx
+65:7  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/dashboard/noticia-crud-actions.tsx
+166:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/dashboard/secretaria-servidor-actions.tsx
+155:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/footer.tsx
+59:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/forms/config-form.tsx
+514:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+813:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/forms/noticias-form.tsx
+97:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/forms/secretaria-servidor-form.tsx
+201:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/header.tsx
+24:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/video-gallery.tsx
+200:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+238:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/61) ...
+   Generating static pages (15/61) 
+   Generating static pages (30/61) 
+   Generating static pages (45/61) 
+ ✓ Generating static pages (61/61)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ƒ /                                    1.69 kB        95.7 kB
+├ ƒ /_not-found                          876 B          88.1 kB
+├ ƒ /api/albuns-foto                     0 B                0 B
+├ ƒ /api/albuns-foto/[id]                0 B                0 B
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/auth/forgot                     0 B                0 B
+├ ƒ /api/auth/login                      0 B                0 B
+├ ƒ /api/auth/permissions-state          0 B                0 B
+├ ƒ /api/auth/ping                       0 B                0 B
+├ ƒ /api/auth/reset                      0 B                0 B
+├ ƒ /api/banners                         0 B                0 B
+├ ƒ /api/banners/[id]                    0 B                0 B
+├ ƒ /api/banners/settings                0 B                0 B
+├ ƒ /api/config                          0 B                0 B
+├ ƒ /api/config/avisos/upload            0 B                0 B
+├ ƒ /api/config/logo                     0 B                0 B
+├ ƒ /api/consent                         0 B                0 B
+├ ƒ /api/contato                         0 B                0 B
+├ ƒ /api/contato/[id]                    0 B                0 B
+├ ƒ /api/contato/[id]/atender            0 B                0 B
+├ ƒ /api/documentos                      0 B                0 B
+├ ƒ /api/documentos/[id]                 0 B                0 B
+├ ƒ /api/documentos/[id]/download        0 B                0 B
+├ ƒ /api/eventos                         0 B                0 B
+├ ƒ /api/eventos/[id]                    0 B                0 B
+├ ƒ /api/eventos/upload                  0 B                0 B
+├ ƒ /api/logs/errors                     0 B                0 B
+├ ƒ /api/midia                           0 B                0 B
+├ ƒ /api/midia/[id]                      0 B                0 B
+├ ƒ /api/noticias                        0 B                0 B
+├ ƒ /api/noticias/[id]                   0 B                0 B
+├ ƒ /api/noticias/[id]/aprovar           0 B                0 B
+├ ƒ /api/noticias/[id]/enviar-aprovacao  0 B                0 B
+├ ƒ /api/noticias/[id]/rejeitar          0 B                0 B
+├ ƒ /api/noticias/upload                 0 B                0 B
+├ ƒ /api/pageview                        0 B                0 B
+├ ƒ /api/paginas                         0 B                0 B
+├ ƒ /api/paginas/[id]                    0 B                0 B
+├ ƒ /api/paginas/upload                  0 B                0 B
+├ ƒ /api/search                          0 B                0 B
+├ ƒ /api/secretaria                      0 B                0 B
+├ ƒ /api/secretaria/[id]                 0 B                0 B
+├ ƒ /api/secretaria/upload               0 B                0 B
+├ ƒ /api/uploads/[...path]               0 B                0 B
+├ ƒ /api/usuarios                        0 B                0 B
+├ ƒ /api/usuarios/[id]                   0 B                0 B
+├ ƒ /api/usuarios/[id]/deslogar          0 B                0 B
+├ ƒ /api/usuarios/[id]/permissoes        0 B                0 B
+├ ƒ /api/videos                          0 B                0 B
+├ ƒ /api/videos/[id]                     0 B                0 B
+├ ƒ /api/videos/[id]/like                0 B                0 B
+├ ƒ /api/videos/[id]/view                0 B                0 B
+├ ƒ /contato                             1.68 kB        95.7 kB
+├ ƒ /cookies                             214 B          94.3 kB
+├ ƒ /dashboard                           1.33 kB         105 kB
+├ ƒ /dashboard/banners                   4.19 kB         108 kB
+├ ƒ /dashboard/config                    11 kB           115 kB
+├ ƒ /dashboard/contatos                  2.23 kB         106 kB
+├ ƒ /dashboard/documentos                3.54 kB         107 kB
+├ ƒ /dashboard/eventos                   2.9 kB          110 kB
+├ ƒ /dashboard/galeria                   1.33 kB         105 kB
+├ ƒ /dashboard/galeria/fotos             2.31 kB         110 kB
+├ ƒ /dashboard/galeria/midias            147 B          87.4 kB
+├ ƒ /dashboard/galeria/videos            2.69 kB         110 kB
+├ ƒ /dashboard/noticias                  3.71 kB         108 kB
+├ ƒ /dashboard/paginas                   2.41 kB         109 kB
+├ ƒ /dashboard/relatorios                1.32 kB         105 kB
+├ ƒ /dashboard/secretaria                4.05 kB         108 kB
+├ ƒ /dashboard/usuarios                  4.76 kB         109 kB
+├ ƒ /documentos                          214 B          94.3 kB
+├ ƒ /eventos                             214 B          94.3 kB
+├ ƒ /eventos/[id]                        214 B          94.3 kB
+├ ƒ /galeria                             214 B          94.3 kB
+├ ƒ /galeria/fotos                       214 B          94.3 kB
+├ ƒ /galeria/midias                      147 B          87.4 kB
+├ ƒ /galeria/videos                      2.5 kB         96.5 kB
+├ ƒ /login                               1.77 kB        98.9 kB
+├ ƒ /noticias                            214 B          94.3 kB
+├ ƒ /noticias/[slug]                     214 B          94.3 kB
+├ ƒ /p/[slug]                            214 B          94.3 kB
+├ ƒ /politica-privacidade                214 B          94.3 kB
+├ ƒ /recuperar                           790 B          88.1 kB
+├ ƒ /secretaria                          214 B          94.3 kB
+└ ƒ /termos                              214 B          94.3 kB
++ First Load JS shared by all            87.3 kB
+  ├ chunks/7023-762046f77c12d13b.js      31.5 kB
+  ├ chunks/fd9d1056-1e7840f2b5626596.js  53.6 kB
+  └ other shared chunks (total)          2.1 kB
+
+
+ƒ  (Dynamic)  server-rendered on demand
+

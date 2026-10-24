@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     where: { email: parsed.data.email }
   });
 
-  if (!user) {
+  if (!user || user.status !== "ATIVO") {
     return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
   }
 

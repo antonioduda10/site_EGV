@@ -4,6 +4,7 @@ import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile } from "@/lib/uploads";
 import { logAuditoria } from "@/lib/audit";
+import { withApiErrors } from "@/lib/api-errors";
 
 // Tipos permitidos para upload de documentos.
 const allowedTypes = [
@@ -21,7 +22,7 @@ export async function GET() {
   return NextResponse.json(documentos);
 }
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   // Protege upload por permissao.
   const { allowed, session } = await requirePermission(Permissions.DOCS_WRITE);
   if (!allowed || !session) {
@@ -83,4 +84,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(documento, { status: 201 });
-}
+}, "documentos.criar");

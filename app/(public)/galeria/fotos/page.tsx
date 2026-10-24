@@ -33,7 +33,7 @@ export default async function GaleriaFotosPublicaPage() {
   const possuiConteudo = totalFotos > 0;
 
   return (
-    <main className="bg-slate-50 dark:bg-slate-950">
+    <div className="bg-slate-50 dark:bg-slate-950">
       <PublicPageHero
         eyebrow="Registros em imagem"
         title="Galeria de fotos"
@@ -121,7 +121,7 @@ export default async function GaleriaFotosPublicaPage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 

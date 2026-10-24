@@ -1,0 +1,42 @@
+
+> portal-egv@0.1.0 test:e2e
+> tsx tests/e2e/run.ts
+
+E2E: schema temporario criado; dados reais preservados.
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "portal_egv", schema "egv_e2e_225021dde88a4f6ebd610beecf30327f" at "localhost:5433"
+
+Your database is now in sync with your Prisma schema. Done in 861ms
+
+[WebServer] (node:57440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 23 tests using 1 worker
+
+  ok  1 tests\e2e\portal.spec.ts:46:7 › PUBLIC-375 paginas publicas sem overflow e com conteudo (5.1s)
+  ok  2 tests\e2e\portal.spec.ts:59:7 › ADMIN-375 listagens e formularios sem overflow (9.1s)
+  ok  3 tests\e2e\portal.spec.ts:46:7 › PUBLIC-768 paginas publicas sem overflow e com conteudo (3.7s)
+  ok  4 tests\e2e\portal.spec.ts:59:7 › ADMIN-768 listagens e formularios sem overflow (8.9s)
+  ok  5 tests\e2e\portal.spec.ts:46:7 › PUBLIC-1366 paginas publicas sem overflow e com conteudo (4.5s)
+  ok  6 tests\e2e\portal.spec.ts:59:7 › ADMIN-1366 listagens e formularios sem overflow (11.3s)
+  ok  7 tests\e2e\portal.spec.ts:84:5 › FLOW-01 painel exige login e API protegida nega acesso (992ms)
+  ok  8 tests\e2e\portal.spec.ts:92:5 › FLOW-02 menu publico mobile fecha apos navegar (1.2s)
+  ok  9 tests\e2e\portal.spec.ts:102:5 › FLOW-03 tema persiste apos reload e Tab revela skip link (1.3s)
+  ok 10 tests\e2e\portal.spec.ts:112:5 › FLOW-04 menu administrativo mobile e sidebar fixa (2.8s)
+  ok 11 tests\e2e\portal.spec.ts:128:5 › FLOW-05 paginas legais, slug, download e conteudo dinamico (2.7s)
+  ok 12 tests\e2e\portal.spec.ts:144:5 › CRUD-01 noticias com PostgreSQL isolado e fluxo de aprovacao (2.5s)
+  ok 13 tests\e2e\portal.spec.ts:162:5 › CRUD-02 documentos com upload e exclusao apenas em diretorio temporario (2.1s)
+  ok 14 tests\e2e\portal.spec.ts:176:5 › FLOW-06 login informa erros e campos invalidos (762ms)
+  ok 15 tests\e2e\portal.spec.ts:185:5 › FLOW-07 carrossel automatico sem botao de pausa e imagens de upload (7.3s)
+  ok 16 tests\e2e\portal.spec.ts:209:5 › FLOW-08 configuracao altera texto dinamico sem novo build (2.2s)
+  ok 17 tests\e2e\portal.spec.ts:223:5 › A11Y-01 WCAG A/AA nas telas publicas e formulario administrativo (55.3s)
+  ok 18 tests\e2e\portal.spec.ts:260:5 › SESSION-01 conserva login entre painel e paginas publicas e permite sair (13.3s)
+  ok 19 tests\e2e\portal.spec.ts:280:5 › SESSION-02 servidor bloqueia sessao com 30 minutos de inatividade (5.3s)
+  ok 20 tests\e2e\portal.spec.ts:292:5 › SESSION-03 usuario autorizado pode encerrar outra sessao (7.5s)
+  ok 21 tests\e2e\portal.spec.ts:314:5 › SESSION-04 interacao renova atividade mas consultas de sessao nao renovam (5.9s)
+  ok 22 tests\e2e\portal.spec.ts:338:5 › NAV-01 links do rodape azuis com destaque ao passar o mouse (3.7s)
+  ok 23 tests\e2e\portal.spec.ts:356:5 › NAV-02 icones sociais com cores caracteristicas e links preservados (1.8s)
+
+  23 passed (2.9m)
+E2E: schema temporario removido.

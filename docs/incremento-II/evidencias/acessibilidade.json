@@ -1,0 +1,62 @@
+[
+  {
+    "path": "/",
+    "violations": []
+  },
+  {
+    "path": "/noticias",
+    "violations": []
+  },
+  {
+    "path": "/documentos",
+    "violations": []
+  },
+  {
+    "path": "/galeria",
+    "violations": []
+  },
+  {
+    "path": "/galeria/fotos",
+    "violations": []
+  },
+  {
+    "path": "/galeria/videos",
+    "violations": []
+  },
+  {
+    "path": "/secretaria",
+    "violations": []
+  },
+  {
+    "path": "/contato",
+    "violations": []
+  },
+  {
+    "path": "/login",
+    "violations": []
+  },
+  {
+    "path": "/dashboard/documentos",
+    "violations": []
+  },
+  {
+    "path": "/ (escuro)",
+    "violations": []
+  },
+  {
+    "path": "/login (escuro)",
+    "violations": []
+  },
+  {
+    "path": "/documentos (escuro)",
+    "violations": []
+  },
+  {
+    "path": "/dashboard/documentos (escuro)",
+    "violations": []
+  },
+  {
+    "path": "/ (cookies, escuro)",
+    "violations": []
+  }
+]

@@ -152,7 +152,7 @@ export function PublicPageHero({
                     >
                       <div className="flex items-start justify-between gap-3">
                         <p className={`text-3xl font-bold leading-none ${colors.stat}`}>{stat.value}</p>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                           Total
                         </span>
                       </div>

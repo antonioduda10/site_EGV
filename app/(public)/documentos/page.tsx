@@ -57,18 +57,21 @@ export default async function DocumentosPage({
           aria-label="Filtrar documentos"
         >
           <input
+            aria-label="Buscar documentos"
             name="q"
             placeholder="Buscar documentos"
             className="min-h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             defaultValue={q}
           />
           <input
+            aria-label="Categoria"
             name="categoria"
             placeholder="Categoria"
             className="min-h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             defaultValue={categoria}
           />
           <input
+            aria-label="Ano"
             name="ano"
             placeholder="Ano"
             className="min-h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"

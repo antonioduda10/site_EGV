@@ -1,49 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { HeaderMobileMenu } from "@/components/header-mobile-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 type LinkItem = { href: string; label: string; newTab?: boolean };
 
-type SessionPayload = {
-  invalidated?: boolean;
-  user?: {
-    id?: string;
-  };
-} | null;
-
 export function HeaderSessionControls({ links }: { links: LinkItem[] }) {
-  const [hasActiveSession, setHasActiveSession] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadSession = async () => {
-      try {
-        const response = await fetch("/api/auth/session", {
-          method: "GET",
-          cache: "no-store",
-          credentials: "same-origin"
-        });
-        if (!response.ok || cancelled) return;
-
-        const session = (await response.json()) as SessionPayload;
-        if (!cancelled) {
-          setHasActiveSession(Boolean(session?.user?.id) && !session?.invalidated);
-        }
-      } catch {
-        if (!cancelled) setHasActiveSession(false);
-      }
-    };
-
-    void loadSession();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: session, status } = useSession();
+  const hasActiveSession = Boolean(session?.user?.id) && !session?.invalidated;
 
   return (
     <div className="flex items-center gap-3">
@@ -55,14 +21,14 @@ export function HeaderSessionControls({ links }: { links: LinkItem[] }) {
         >
           Painel
         </Link>
-      ) : (
+      ) : status !== "loading" ? (
         <Link
           href="/login"
           className="hidden text-sm text-slate-600 transition-colors hover:text-brand-600 md:inline-flex dark:text-slate-300"
         >
           Login
         </Link>
-      )}
+      ) : null}
 
       <HeaderMobileMenu links={links} hasActiveSession={hasActiveSession} />
     </div>

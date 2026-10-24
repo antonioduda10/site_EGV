@@ -118,7 +118,7 @@ O `docker-compose.yml` sobe um PostgreSQL 16 com:
 
 ## Credenciais iniciais do seed
 
-- Email: `admin@egv.edu.br`
+- Email: `********************`
 - Senha: `***********`
 
 ## Comandos
@@ -147,35 +147,6 @@ Antes de entregar alterações importantes:
 - `npx tsc --noEmit --incremental false`
 - `npm run build`
 
-## Incremento II: testes e acessibilidade
-
-A suíte usa **Vitest 3.2.7**, **Vite 6.4.4**, cobertura **V8**, **Playwright 1.64.1** e **axe-core/playwright 4.13.0**, somente como dependências de desenvolvimento. As versões do Vitest/Vite são compatíveis com o Node 20.18 utilizado neste projeto.
-
-Os testes de unidade e handlers simulam Prisma e operações de arquivos. Incluem CredentialsProvider, JWT, sessão, RBAC, proteção administrativa, notícias, aprovação, documentos, upload e tratamento de erros. `npm test` não precisa acessar o banco nem os uploads reais.
-
-Para a revisão completa no navegador, mantenha o PostgreSQL disponível e execute:
-
-```powershell
-npx playwright install chromium
-npm run validate
-npm run test:e2e
-npm run test:evidence
-```
-
-`test:e2e` usa a conexão PostgreSQL configurada para criar um **schema temporário com nome aleatório**, aplica o schema atual somente nesse ambiente e cria registros fictícios. O Next inicia na porta **3100**, com credenciais geradas em memória e arquivos em uma pasta temporária. Ao terminar, o schema e os arquivos de teste são removidos. A conta do banco precisa de permissão para criar/remover schemas; a porta 3100 deve estar livre. Não é necessário alterar o `.env`, usar ngrok ou executar o seed do banco real para esses testes.
-
-As verificações incluem 375, 768 e 1366 px, menus, sidebar, tema, teclado, acessibilidade automatizada, CRUD de notícias/documentos, uploads/downloads e atualização de configuração sem novo build. Também verificam a sessão entre páginas públicas e painel, saída voluntária, encerramento por usuário autorizado, expiração por inatividade e renovação apenas por interação. A execução direta de `npx playwright test` é bloqueada para evitar uso acidental do ambiente real.
-
-As melhorias pontuais incluem rótulos de formulário, foco visível, contraste, login com feedback de envio, suporte visual escuro e links azuis no rodapé com destaque ao passar o mouse ou receber foco. Os ícones de Facebook, Instagram, YouTube, LinkedIn e TikTok usam cores características de cada rede, preservando nomes, endereços e configuração de abertura dos links. O carrossel troca os banners automaticamente, sem botão de pausar/reproduzir, mantendo setas, indicadores e intervalo configurável. A preferência do sistema por movimento reduzido continua respeitada. O portal continua alinhado ao MVP e à acessibilidade básica. A auditoria automatizada não substitui avaliação humana ou testes em aparelhos reais.
-
-### Comportamento da sessão
-
-Voltar ao site público não encerra o acesso ao painel. O cabeçalho acompanha a sessão e mostra **Painel** para quem já entrou; acessar `/login` com sessão válida encaminha ao dashboard sem pedir a senha novamente. A sessão é invalidada após **30 minutos sem interação**, na saída voluntária, no encerramento por usuário autorizado ou quando a conta é desativada/removida. A regra de inatividade também é conferida no servidor; consultas automáticas de sessão e presença não renovam esse prazo.
-
-Movimentos do ponteiro, cliques, teclado, toque e rolagem renovam a atividade em verificações espaçadas, sem alterar o banco ou as permissões. No site público, a expiração não interrompe a leitura da página; no painel, encaminha para o login com mensagem explicativa. Cookies válidos anteriores à atualização recebem uma janela inicial de 30 minutos. Não há alteração de `.env` para essa correção; continuam valendo as orientações de host/rede descritas acima.
-
-Relatórios e capturas: [docs/incremento-II/RELATORIO_INCREMENTO_II.md](docs/incremento-II/RELATORIO_INCREMENTO_II.md) e [docs/incremento-II/EVIDENCIAS.md](docs/incremento-II/EVIDENCIAS.md). A cobertura HTML local fica em `coverage/index.html`; ela representa os arquivos selecionados, não o sistema inteiro.
-
 ## Uploads
 
 Arquivos enviados pelo painel ficam na pasta `uploads/` em desenvolvimento. Essa pasta não deve ser tratada como código-fonte e deve ser preservada em ambiente de produção conforme a estratégia de backup do servidor.
@@ -194,3 +165,9 @@ Roteiro recomendado:
 - O frontend mantém SSR/Server Components onde possível.
 - O painel administrativo depende das permissões configuradas para filtrar menus e ações.
 - As cores institucionais continuam controladas por variáveis CSS e configurações do site.
+
+## Colaboradores
+
+- Antônio Duda Oliveira da Silva
+- Diego D’Ávila de Sousa Garcia
+- Luis Fernando Carvalho Costa

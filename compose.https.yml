@@ -1,0 +1,38 @@
+services:
+  app:
+    labels:
+      traefik.http.routers.portal-egv-http.middlewares: portal-egv-force-https
+      traefik.http.routers.portal-egv-admin.middlewares: portal-egv-force-https
+      traefik.http.middlewares.portal-egv-force-https.redirectscheme.scheme: https
+      traefik.http.middlewares.portal-egv-force-https.redirectscheme.permanent: "true"
+      traefik.http.routers.portal-egv-https.rule: Host(`${PORTAL_HOST}`)
+      traefik.http.routers.portal-egv-https.entrypoints: websecure
+      traefik.http.routers.portal-egv-https.service: portal-egv
+      traefik.http.routers.portal-egv-https.tls: "true"
+      traefik.http.routers.portal-egv-https.tls.certresolver: letsencrypt
+      traefik.http.routers.portal-egv-https.tls.domains[0].main: ${PORTAL_HOST}
+      traefik.http.routers.portal-egv-https.tls.domains[0].sans: ${PORTAL_WWW_HOST:?required}
+      traefik.http.routers.portal-egv-www-http.rule: Host(`${PORTAL_WWW_HOST}`)
+      traefik.http.routers.portal-egv-www-http.entrypoints: web
+      traefik.http.routers.portal-egv-www-http.priority: "100"
+      traefik.http.routers.portal-egv-www-http.service: portal-egv
+      traefik.http.routers.portal-egv-www-http.middlewares: portal-egv-canonical
+      traefik.http.routers.portal-egv-www-https.rule: Host(`${PORTAL_WWW_HOST}`)
+      traefik.http.routers.portal-egv-www-https.entrypoints: websecure
+      traefik.http.routers.portal-egv-www-https.service: portal-egv
+      traefik.http.routers.portal-egv-www-https.middlewares: portal-egv-canonical
+      traefik.http.routers.portal-egv-www-https.tls: "true"
+      traefik.http.middlewares.portal-egv-canonical.redirectregex.regex: ^https?://[^/]+(/.*)$$
+      traefik.http.middlewares.portal-egv-canonical.redirectregex.replacement: https://${PORTAL_HOST}$${1}
+      traefik.http.middlewares.portal-egv-canonical.redirectregex.permanent: "true"
+      traefik.http.routers.portal-egv-legacy-ip.rule: Host(`179.66.135.203`)
+      traefik.http.routers.portal-egv-legacy-ip.entrypoints: web
+      traefik.http.routers.portal-egv-legacy-ip.priority: "100"
+      traefik.http.routers.portal-egv-legacy-ip.service: portal-egv
+      traefik.http.routers.portal-egv-legacy-ip.middlewares: portal-egv-canonical
+      traefik.http.routers.portal-egv-upgrade-block-https.rule: Host(`${PORTAL_HOST}`) && HeaderRegexp(`Upgrade`, `(?i)websocket`)
+      traefik.http.routers.portal-egv-upgrade-block-https.entrypoints: websecure
+      traefik.http.routers.portal-egv-upgrade-block-https.priority: "400"
+      traefik.http.routers.portal-egv-upgrade-block-https.service: portal-egv
+      traefik.http.routers.portal-egv-upgrade-block-https.middlewares: portal-egv-admin-local
+      traefik.http.routers.portal-egv-upgrade-block-https.tls: "true"

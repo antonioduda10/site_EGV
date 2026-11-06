@@ -5,6 +5,7 @@ import { parsePublicTexts } from "@/lib/public-texts";
 import { getPublicTextsJson } from "@/lib/public-texts-config";
 import { PublicPageHero } from "@/components/public-page-hero";
 import { createPublicMetadata } from "@/lib/seo";
+import { publicNewsWhere } from "@/lib/publication";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function NoticiasPage({
   const [noticias, textosPublicosJson] = await Promise.all([
     db.noticia.findMany({
       where: {
-        status: "PUBLICADO",
+        AND: [publicNewsWhere()],
         OR: query
           ? [
               { titulo: { contains: query, mode: "insensitive" } },

@@ -23,8 +23,22 @@ const allowedOrigins = Array.from(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  distDir: ".next-build",
+  ...(process.env.EGV_STANDALONE === "1" ? { output: "standalone" } : {}),
+  distDir: process.env.EGV_BUILD_DIR || ".next-build",
+  images: { unoptimized: true, dangerouslyAllowSVG: false },
+  async headers() {
+    return [{
+      source: "/:path*",
+      headers: [
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" }
+      ]
+    }];
+  },
   experimental: {
+    ...(process.env.EGV_BUILD_CPUS === "1" ? { cpus: 1 } : {}),
     serverActions: { allowedOrigins }
   }
 };

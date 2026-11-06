@@ -8,7 +8,7 @@ import { can } from "@/lib/rbac";
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session || session.invalidated || !session.user?.id) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 

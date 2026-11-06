@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 
 const validDisplayModes = ["AUTO", "EMBED", "EXTERNO"] as const;
 
@@ -13,9 +16,10 @@ function normalizeOrder(value: unknown) {
 
 export async function GET() {
   const videos = await db.videoGaleria.findMany({
+    where: await hasContentPermission(Permissions.VIDEOS_WRITE) ? undefined : { dataPublicacao: { lte: new Date() } },
     orderBy: [{ ordem: "asc" }, { dataPublicacao: "desc" }, { id: "asc" }]
   });
-  return NextResponse.json(videos);
+  return NextResponse.json(videos, { headers: contentHeaders });
 }
 
 export async function POST(request: Request) {

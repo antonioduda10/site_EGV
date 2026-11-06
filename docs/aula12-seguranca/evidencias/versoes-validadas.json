@@ -1,0 +1,7 @@
+{
+  "node": "24.19.0",
+  "next": "14.2.35",
+  "nextAuth": "4.24.15",
+  "sharpResolvedFromNext": "0.35.5",
+  "sanitizeHtml": "2.18.1"
+}

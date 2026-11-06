@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { newPasswordError, PASSWORD_POLICY_MESSAGE } from "@/lib/password-policy";
 
 export function UsuariosForm() {
   const [status, setStatus] = useState<string | null>(null);
@@ -13,6 +14,8 @@ export function UsuariosForm() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
+    const passwordError = newPasswordError(String(payload.senha ?? ""));
+    if (passwordError) { setStatus(passwordError); setStatusType("error"); return; }
 
     setStatus(null);
     setStatusType(null);
@@ -54,10 +57,10 @@ export function UsuariosForm() {
       </div>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-[1.1fr_1.2fr_0.9fr_0.9fr_auto]">
-        <input name="nome" placeholder="Nome" required className={fieldClass} disabled={isSaving} />
-        <input name="email" type="email" placeholder="Email" required className={fieldClass} disabled={isSaving} />
-        <input name="senha" type="password" placeholder="Senha" required className={fieldClass} disabled={isSaving} />
-        <select name="perfil" required className={fieldClass} disabled={isSaving}>
+        <input name="nome" aria-label="Nome do novo usuário" placeholder="Nome" required className={fieldClass} disabled={isSaving} />
+        <input name="email" aria-label="Email do novo usuário" type="email" placeholder="Email" required className={fieldClass} disabled={isSaving} />
+        <input name="senha" aria-label="Senha do novo usuário" aria-describedby="nova-senha-regra" autoComplete="new-password" type="password" placeholder="Senha" required className={fieldClass} disabled={isSaving} />
+        <select name="perfil" aria-label="Perfil do novo usuário" required className={fieldClass} disabled={isSaving}>
           <option value="">Perfil</option>
           <option value="Admin">Admin</option>
           <option value="Direção">Direção</option>
@@ -77,8 +80,10 @@ export function UsuariosForm() {
         </button>
       </div>
 
+      <p id="nova-senha-regra" className="mt-3 text-sm text-slate-600 dark:text-slate-300">{PASSWORD_POLICY_MESSAGE}</p>
       {status && (
         <p
+          role={statusType === "error" ? "alert" : "status"}
           className={`mt-4 rounded-xl px-3 py-2 text-sm ${
             statusType === "success"
               ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"

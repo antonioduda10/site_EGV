@@ -1,0 +1,11 @@
+[Unit]
+Description=Portal EGV external backup after the local backup window
+
+[Timer]
+OnCalendar=*-*-* 03:45:00
+RandomizedDelaySec=300
+Persistent=true
+Unit=portal-egv-backup-external.service
+
+[Install]
+WantedBy=timers.target

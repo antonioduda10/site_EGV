@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { safeHref } from "@/lib/safe-href";
 
 type VideoItem = {
   id: string;
@@ -49,13 +50,13 @@ const toEmbedUrl = (url: string, origin?: string) => {
     }
     return embed.toString();
   }
-  return url;
+  return safeHref(url);
 };
 
 const toWatchUrl = (url: string) => {
   const id = getYouTubeId(url);
   if (id) return `https://www.youtube.com/watch?v=${id}`;
-  return url;
+  return safeHref(url);
 };
 
 const toThumbnailUrl = (url: string) => {

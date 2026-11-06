@@ -15,6 +15,7 @@ export const metadata = createPublicMetadata({
 export default async function GaleriaVideosPublicaPage() {
   const [videos, uploads] = await Promise.all([
     db.videoGaleria.findMany({
+      where: { dataPublicacao: { lte: new Date() } },
       orderBy: [{ ordem: "asc" }, { dataPublicacao: "desc" }, { id: "asc" }]
     }),
     db.midia.findMany({

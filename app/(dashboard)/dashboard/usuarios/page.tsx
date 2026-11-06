@@ -9,6 +9,7 @@ import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { isProtectedSuperAdmin } from "@/lib/super-master";
 import { getPermissionsForRoles } from "@/lib/rbac";
+import { safeUserSelect } from "@/lib/safe-user";
 
 export default async function UsuariosPage() {
   // Controla acesso ao gerenciamento de usuarios.
@@ -24,7 +25,7 @@ export default async function UsuariosPage() {
     );
   }
   const usuarios = await db.usuario.findMany({
-    include: { perfis: { include: { perfil: true } }, permissoes: true },
+    select: safeUserSelect,
     orderBy: { nome: "asc" }
   });
   let sessoesAtivas: Array<{ usuarioId: string }> = [];

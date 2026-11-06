@@ -1,8 +1,9 @@
 import { spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { redactLogText } from "../lib/log-redaction";
 
-const directory = "docs/incremento-II/evidencias";
+const directory = process.env.EGV_EVIDENCE_DIR || "docs/incremento-II/evidencias";
 const checks = [
   { name: "testes", command: "npm test", script: "vitest/vitest.mjs", args: ["run", "--reporter=default", "--reporter=json", "--outputFile=test-results/vitest.json"] },
   { name: "cobertura", command: "npm run test:coverage", script: "vitest/vitest.mjs", args: ["run", "--coverage"] },
@@ -21,15 +22,16 @@ async function main() {
     let output = "";
     const exitCode = await new Promise<number>((resolve, reject) => {
       const child = spawn(process.execPath, [path.resolve("node_modules", check.script), ...check.args], {
-        env: { ...process.env, FORCE_COLOR: "0", NO_COLOR: "1" }, stdio: ["ignore", "pipe", "pipe"]
+        env: { ...process.env, FORCE_COLOR: "0", NO_COLOR: "1", ...(check.name === "build" ? { DATABASE_URL: "postgresql://validation:validation@127.0.0.1:1/validation?connect_timeout=1" } : {}) }, stdio: ["ignore", "pipe", "pipe"]
       });
       for (const stream of [child.stdout, child.stderr]) {
-        stream.on("data", (chunk: Buffer) => { output += chunk.toString(); process.stdout.write(chunk); });
+        stream.on("data", (chunk: Buffer) => { output += chunk.toString(); });
       }
       child.on("error", reject);
       child.on("exit", (code) => resolve(code ?? 1));
     });
-    const cleanOutput = output.replace(/\x1b\[[0-9;]*m/g, "");
+    const cleanOutput = redactLogText(output.replace(/\x1b\[[0-9;]*m/g, "")).split(process.cwd()).join("[projeto]");
+    process.stdout.write(cleanOutput);
     await writeFile(`${directory}/${check.name}.txt`, cleanOutput);
     results.push({ command: check.command, exitCode, startedAt, finishedAt: new Date().toISOString(), log: `${check.name}.txt` });
     await writeFile(`${directory}/validacao.json`, JSON.stringify(results, null, 2));

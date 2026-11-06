@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
@@ -49,7 +51,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(album, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro interno ao criar álbum";
+    const message = "Erro interno ao criar álbum";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

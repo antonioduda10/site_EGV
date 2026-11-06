@@ -1,0 +1,17 @@
+[Unit]
+Description=Portal EGV encrypted off-site backup to private Cloudflare R2
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/opt/portal-egv/bin/backup-external.sh backup
+TimeoutStartSec=3700
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/portal-egv/shared /var/lock /run/lock
+NoNewPrivileges=true

@@ -2,15 +2,29 @@
 
 ## Visão geral
 
+Implantacao na VPS com Docker, PostgreSQL 16, volumes persistentes e Traefik existente: [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md). O compose de desenvolvimento foi preservado; producao usa `compose.production.yml`. Atualizacoes por snapshot local: `npm run deploy:publish` com Node 24 e chave SSH configurada.
+
+Producao: **https://escolagetuliovargas.com.br**. HTTP e `www` redirecionam para esse endereco, preservando caminho e parametros. HTTPS utiliza Let's Encrypt no Traefik existente, com renovacao automatica configurada. Login e painel estao disponiveis pelo dominio HTTPS; PostgreSQL nao publica porta e a porta 3000 permanece em loopback. Backup local diario e restauracao isolada foram validados; Cloudflare R2 permanece desativado nesta etapa.
+
 Portal institucional da Escola Municipal Getúlio Vargas, com site público e painel administrativo para gestão de conteúdos, comunicação escolar e arquivos públicos.
 
 O sistema contempla páginas públicas, notícias, eventos, documentos, galeria, contatos, secretaria, configurações do site, controle de usuários, perfis/permissões e recursos básicos de LGPD.
 
 ## Tecnologias utilizadas
 
+**Requisito: Node 24 LTS**, indicado tambem em `.nvmrc` e `package.json`. O incremento Aula 12 utiliza sanitize-html 2.18.1, file-type 22.2.0 e sharp 0.35.5. O Node global nao e atualizado automaticamente.
+
+### Seguranca - Aula 12
+
+Selecao de usuarios sem hashes, sanitizacao de HTML no servidor, filtros de publicacao, politica de novas senhas (15 a 128 caracteres, frases-senha permitidas), arquivos validados por assinatura e confinamento de caminhos. Senhas antigas continuam autenticando. Alteracao/reset de senha revogam sessoes; RBAC e inatividade de 30 minutos foram preservados.
+
+Validacao: `npm test`, `npm run test:coverage`, `npm run lint`, `npx tsc --noEmit --incremental false`, `npm run build`, `npm run test:e2e`, `npm run validate`, `npm run test:evidence`. Auditoria: `npm run security:audit`; entrega sem segredos: `npm run security:package`.
+
+Documentacao: [relatorio](docs/aula12-seguranca/RELATORIO_SEGURANCA.md), [riscos pendentes](docs/aula12-seguranca/PENDENCIAS_SEGURANCA.md) e [reproducao/empacotamento](docs/aula12-seguranca/SEGREDOS_E_EMPACOTAMENTO.md). O MVP foi preservado, sem migracao de major do Next. Existem riscos residuais documentados.
+
 ### Frontend
 
-- **Next.js 14.2.5** com **App Router**
+- **Next.js 14.2.35** com **App Router**
 - **React 18.3.1**
 - **TypeScript 5.5**
 - **Tailwind CSS 3.4**
@@ -32,7 +46,7 @@ O sistema contempla páginas públicas, notícias, eventos, documentos, galeria,
 
 ### Autenticação e segurança
 
-- **NextAuth 4.24** com provedor **Credentials**
+- **NextAuth 4.24.15** com provedor **Credentials**
 - Controle de acesso por **RBAC**, perfis e permissões
 - Rotas administrativas protegidas
 - Sessões compartilhadas entre site público e painel, com controle de versão/estado ativo e expiração após 30 minutos sem interação

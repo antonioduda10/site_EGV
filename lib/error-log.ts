@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { redactLogText, redactLogDetails, logPath } from "./log-redaction";
 
 export type ErrorLogInput = {
   source?: string;
@@ -28,7 +29,7 @@ export async function logErrorEvent(input: ErrorLogInput) {
     source: sanitizeString(input.source, 60) ?? "dashboard",
     action: sanitizeString(input.action, 120),
     method: sanitizeString(input.method, 16),
-    path: sanitizeString(input.path, 300),
+    path: logPath(input.path),
     status: input.status,
     message: sanitizeString(input.message, 800) ?? "Erro sem mensagem",
     usuarioId: sanitizeString(input.usuarioId, 120),
@@ -90,7 +91,7 @@ function parseEntry(line: string): ErrorLogEntry | null {
       source: sanitizeString(parsed.source, 60),
       action: sanitizeString(parsed.action, 120),
       method: sanitizeString(parsed.method, 16),
-      path: sanitizeString(parsed.path, 300),
+      path: logPath(parsed.path),
       status: typeof parsed.status === "number" ? parsed.status : undefined,
       message: sanitizeString(parsed.message, 800),
       usuarioId: sanitizeString(parsed.usuarioId, 120),
@@ -104,17 +105,11 @@ function parseEntry(line: string): ErrorLogEntry | null {
 
 function sanitizeString(value: unknown, maxLength: number) {
   if (typeof value !== "string") return undefined;
-  const trimmed = value.replace(/\s+/g, " ").trim();
+  const trimmed = redactLogText(value).replace(/\s+/g, " ").trim();
   if (!trimmed) return undefined;
   return trimmed.slice(0, maxLength);
 }
 
 function sanitizeDetails(value: unknown) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-  const output: Record<string, unknown> = {};
-  for (const [key, detail] of Object.entries(value)) {
-    if (typeof detail === "string") output[key] = sanitizeString(detail, 500);
-    if (typeof detail === "number" || typeof detail === "boolean") output[key] = detail;
-  }
-  return Object.keys(output).length ? output : undefined;
+  return redactLogDetails(value);
 }

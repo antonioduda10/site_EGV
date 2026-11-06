@@ -1,0 +1,1 @@
+E2E anterior bloqueado: o servidor temporario nao iniciou porque nao havia build de producao utilizavel em .next-build. Nenhum teste de navegador foi declarado aprovado. O schema temporario foi removido. A unica alteracao previa de fixture retirou telefone/endereco reais do rodape das capturas.

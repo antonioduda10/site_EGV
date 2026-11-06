@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Evento" ADD COLUMN     "conteudo" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "ordem" INTEGER NOT NULL DEFAULT 0;

@@ -4,9 +4,14 @@ import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
-import { normalizeUploadAssetUrl, rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { normalizeUploadAssetUrl } from "@/lib/content-url";
+import { sanitizeRichHtml, sanitizeRichRecord } from "@/lib/sanitize-rich-html";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
+import { publicNewsWhere } from "@/lib/publication";
 import { normalizeNewsCoverSize } from "@/lib/news-cover-size";
 import { withApiErrors } from "@/lib/api-errors";
+
+export const dynamic = "force-dynamic";
 
 function slugify(text: string) {
   // Normaliza o titulo para gerar o slug publico.
@@ -29,7 +34,7 @@ function escapeHtml(value: string) {
 
 function normalizeContent(input: string) {
   const hasTag = /<\/?[a-z][\s\S]*>/i.test(input);
-  if (hasTag) return rewriteUploadUrlsInHtml(input);
+  if (hasTag) return sanitizeRichHtml(input);
   const escaped = escapeHtml(input).replace(/\r?\n/g, "<br />");
   return `<p>${escaped}</p>`;
 }
@@ -43,9 +48,10 @@ export async function GET() {
   });
 
   const noticias = await db.noticia.findMany({
+    where: await hasContentPermission(Permissions.NEWS_READ, Permissions.NEWS_WRITE, Permissions.NEWS_APPROVE) ? undefined : publicNewsWhere(now),
     orderBy: { dataCadastro: "desc" }
   });
-  return NextResponse.json(noticias);
+  return NextResponse.json(noticias.map(sanitizeRichRecord), { headers: contentHeaders });
 }
 
 export const POST = withApiErrors(async (request: Request) => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { newPasswordError, PASSWORD_POLICY_MESSAGE } from "@/lib/password-policy";
 
 type Props = {
   usuarioId: string;
@@ -43,8 +44,8 @@ export function UsuarioActions({ usuarioId, nome, email, status, perfilAtual, us
     setMsg(null);
     const payload = { ...form };
     if (!payload.senha) delete (payload as { senha?: string }).senha;
-    if (payload.senha && payload.senha.length < 6) {
-      setMsg("A nova senha deve ter no mínimo 6 caracteres.");
+    if (payload.senha && newPasswordError(payload.senha)) {
+      setMsg(PASSWORD_POLICY_MESSAGE);
       return;
     }
     setLoadingAction("salvar");
@@ -146,8 +147,11 @@ export function UsuarioActions({ usuarioId, nome, email, status, perfilAtual, us
           value={form.senha}
           onChange={(event) => setForm({ ...form, senha: event.target.value })}
           placeholder="Nova senha"
+          aria-label="Nova senha"
+          autoComplete="new-password"
           type="password"
         />
+        <p className="text-xs text-slate-600 dark:text-slate-300">{PASSWORD_POLICY_MESSAGE} Deixe em branco para manter a senha atual.</p>
         <input
           className={fieldClass}
           value={form.status}

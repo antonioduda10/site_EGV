@@ -4,15 +4,16 @@ import { eventoSchema } from "@/lib/validators";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml, sanitizeRichRecord } from "@/lib/sanitize-rich-html";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 import { compactEventoOrdens, normalizeEventOrderValue, reorderEventosByPosition } from "@/lib/event-order";
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const evento = await db.evento.findUnique({ where: { id: params.id } });
-  if (!evento) {
+  if (!evento || (evento.status !== "PUBLICADO" && !await hasContentPermission(Permissions.EVENTS_WRITE))) {
     return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
   }
-  return NextResponse.json(evento);
+  return NextResponse.json(sanitizeRichRecord(evento), { headers: contentHeaders });
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -40,7 +41,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     where: { id: params.id },
     data: {
       ...parsed.data,
-      conteudo: parsed.data.conteudo !== undefined ? rewriteUploadUrlsInHtml(parsed.data.conteudo) : undefined,
+      conteudo: parsed.data.conteudo !== undefined ? sanitizeRichHtml(parsed.data.conteudo) : undefined,
       dataInicio: parsed.data.dataInicio ? new Date(parsed.data.dataInicio) : undefined,
       dataFim: parsed.data.dataFim ? new Date(parsed.data.dataFim) : undefined,
       status: status ?? undefined,

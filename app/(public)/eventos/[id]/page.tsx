@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { PublicPageHero } from "@/components/public-page-hero";
 import { createPublicMetadata, stripHtmlToText } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  const evento = await db.evento.findUnique({
-    where: { id: params.id },
+  const evento = await db.evento.findFirst({
+    where: { id: params.id, status: "PUBLICADO" },
     select: { titulo: true, descricao: true, conteudo: true }
   });
 
@@ -30,11 +30,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 
 export default async function EventoDetalhe({ params }: { params: { id: string } }) {
   // Busca o evento pelo id para exibir os detalhes.
-  const evento = await db.evento.findUnique({
-    where: { id: params.id }
+  const evento = await db.evento.findFirst({
+    where: { id: params.id, status: "PUBLICADO" }
   });
   if (!evento) return notFound();
-  const conteudoNormalizado = rewriteUploadUrlsInHtml(evento.conteudo?.trim() ? evento.conteudo : `<p>${evento.descricao}</p>`);
+  const conteudoNormalizado = sanitizeRichHtml(evento.conteudo?.trim() ? evento.conteudo : `<p>${evento.descricao}</p>`);
   const dataEvento = new Date(evento.dataInicio).toLocaleDateString("pt-BR", { dateStyle: "medium" });
   const horaEvento = new Date(evento.dataInicio).toLocaleTimeString("pt-BR", {
     hour: "2-digit",

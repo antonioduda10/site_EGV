@@ -1,6 +1,8 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { logErrorEvent } from "./error-log";
+import { UploadValidationError } from "./upload-policy";
+import { UploadPathError } from "./upload-path";
 
 export function withApiErrors<Args extends unknown[]>(handler: (...args: Args) => Promise<Response>, action: string) {
   return async (...args: Args): Promise<Response> => {
@@ -9,7 +11,10 @@ export function withApiErrors<Args extends unknown[]>(handler: (...args: Args) =
     } catch (error) {
       let status = 500;
       let message = "Não foi possível concluir a operação. Tente novamente.";
-      if (error instanceof SyntaxError) {
+      if (error instanceof UploadValidationError || error instanceof UploadPathError) {
+        status = error.status;
+        message = error.message;
+      } else if (error instanceof SyntaxError) {
         status = 400;
         message = "Dados inválidos";
       } else if (error instanceof Prisma.PrismaClientKnownRequestError) {

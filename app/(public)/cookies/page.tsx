@@ -1,6 +1,6 @@
 import { PublicPageHero } from "@/components/public-page-hero";
 import { db } from "@/lib/db";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { createPublicMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export default async function CookiesPage() {
   const config = await db.configuracaoSite.findFirst({
     select: { cookies: true }
   }).catch(() => null);
-  const conteudo = rewriteUploadUrlsInHtml(config?.cookies ?? "<p>Informações sobre o uso de cookies no portal.</p>");
+  const conteudo = sanitizeRichHtml(config?.cookies ?? "<p>Informações sobre o uso de cookies no portal.</p>");
   return (
     <div className="bg-slate-50 dark:bg-slate-950">
       <PublicPageHero

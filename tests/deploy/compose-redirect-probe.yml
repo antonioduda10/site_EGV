@@ -1,0 +1,9 @@
+services:
+  probe:
+    image: ${PROBE_IMAGE:?required}
+    network_mode: none
+    entrypoint: ["node", "--version"]
+    labels:
+      traefik.enable: "false"
+      probe.regex: ^https?://[^/]+(/.*)$$
+      probe.replacement: https://${PORTAL_HOST}$${1}

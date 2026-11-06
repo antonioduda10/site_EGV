@@ -3,19 +3,21 @@ import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile, deleteFile } from "@/lib/uploads";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
+import { withApiErrors } from "@/lib/api-errors";
 
 // Tipos de imagem permitidos para banners.
 const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const banner = await db.banner.findUnique({ where: { id: params.id } });
-  if (!banner) {
+  if (!banner || (!banner.ativo && !await hasContentPermission(Permissions.BANNERS_WRITE))) {
     return NextResponse.json({ error: "Banner não encontrado" }, { status: 404 });
   }
-  return NextResponse.json(banner);
+  return NextResponse.json(banner, { headers: contentHeaders });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withApiErrors(async (request: Request, { params }: { params: { id: string } }) => {
   // Protege edicao por permissao de paginas.
   const { allowed, session } = await requirePermission(Permissions.BANNERS_WRITE);
   if (!allowed || !session) {
@@ -42,7 +44,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!allowedTypes.includes(imagem.type)) {
       return NextResponse.json({ error: "Tipo de imagem inválido (use JPG, PNG ou WebP)" }, { status: 400 });
     }
-    await deleteFile(banner.imagem);
     imagemPath = await uploadFile(imagem, "banners");
   }
 
@@ -58,8 +59,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
   });
 
+  if (imagemPath !== banner.imagem) await deleteFile(banner.imagem);
   return NextResponse.json(updated);
-}
+}, "banners.editar");
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   // Exclusao exige permissao de paginas.

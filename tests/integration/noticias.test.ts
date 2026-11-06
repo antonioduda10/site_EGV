@@ -67,13 +67,14 @@ describe("API noticias: autorizacao real e CRUD com Prisma simulado", () => {
     expect(JSON.stringify(await response.json())).not.toContain("detalhe-interno-simulado");
   });
   it("NEWS-07 consulta publica preserva ordenacao e publicacao agendada", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
     dbMock.noticia.updateMany.mockResolvedValue({ count: 0 });
-    dbMock.noticia.findMany.mockResolvedValue([record]);
+    dbMock.noticia.findMany.mockResolvedValue([{ ...record, status: "PUBLICADO" }]);
     const response = await GET();
     expect(response.status).toBe(200);
     expect(await response.json()).toHaveLength(1);
     expect(dbMock.noticia.updateMany).toHaveBeenCalledWith({ where: { status: "AGENDADO", dataPublicacao: { lte: expect.any(Date) } }, data: { status: "PUBLICADO" } });
-    expect(dbMock.noticia.findMany).toHaveBeenCalledWith({ orderBy: { dataCadastro: "desc" } });
+    expect(dbMock.noticia.findMany).toHaveBeenCalledWith({ where: { status: "PUBLICADO", OR: [{ dataPublicacao: null }, { dataPublicacao: { lte: expect.any(Date) } }] }, orderBy: { dataCadastro: "desc" } });
   });
   it("NEWS-08 detalhe existente retorna JSON", async () => {
     expect(await (await detail(request(), params)).json()).toEqual(record);
@@ -121,6 +122,6 @@ describe("API noticias: autorizacao real e CRUD com Prisma simulado", () => {
   });
   it("NEWS-19 normaliza HTML, capa e tamanho sem alterar payload", async () => {
     await POST(jsonRequest("/api/noticias", { ...payload, conteudo: '<p>Conteudo <img src="https://antigo.example/api/uploads/a.png"></p>', imagemCapa: "https://antigo.example/api/uploads/capa.png", imagemCapaTamanho: "PEQUENO", dataPublicacao: "2030-01-01T10:00:00Z" }));
-    expect(dbMock.noticia.create).toHaveBeenCalledWith({ data: expect.objectContaining({ conteudo: '<p>Conteudo <img src="/api/uploads/a.png"></p>', imagemCapa: "/api/uploads/capa.png", imagemCapaTamanho: "PEQUENO", dataPublicacao: new Date("2030-01-01T10:00:00Z") }) });
+    expect(dbMock.noticia.create).toHaveBeenCalledWith({ data: expect.objectContaining({ conteudo: '<p>Conteudo <img src="/api/uploads/a.png" loading="lazy" decoding="async" /></p>', imagemCapa: "/api/uploads/capa.png", imagemCapaTamanho: "PEQUENO", dataPublicacao: new Date("2030-01-01T10:00:00Z") }) });
   });
 });

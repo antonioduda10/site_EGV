@@ -4,6 +4,9 @@ import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile } from "@/lib/uploads";
 import { logAuditoria } from "@/lib/audit";
+import { withApiErrors } from "@/lib/api-errors";
+
+export const dynamic = "force-dynamic";
 
 // Tipos permitidos para uploads de audio/video/imagem.
 const allowedTypes = [
@@ -40,7 +43,7 @@ export async function GET() {
   return NextResponse.json(midias);
 }
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   // Protege o upload de midia.
   const { allowed, session } = await requirePermission(Permissions.MEDIA_WRITE);
   if (!allowed || !session) {
@@ -106,4 +109,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(midia, { status: 201 });
-}
+}, "midia.upload");

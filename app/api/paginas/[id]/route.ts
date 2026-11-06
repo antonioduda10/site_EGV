@@ -4,7 +4,8 @@ import { paginaSchema } from "@/lib/validators";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml, sanitizeRichRecord } from "@/lib/sanitize-rich-html";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 
 function escapeHtml(value: string) {
   return value
@@ -18,17 +19,17 @@ function escapeHtml(value: string) {
 function normalizeContent(input: string) {
   // Mantem HTML recebido; se for texto puro, converte para paragrafo.
   const hasTag = /<\/?[a-z][\s\S]*>/i.test(input);
-  if (hasTag) return rewriteUploadUrlsInHtml(input);
+  if (hasTag) return sanitizeRichHtml(input);
   const escaped = escapeHtml(input).replace(/\r?\n/g, "<br />");
   return `<p>${escaped}</p>`;
 }
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const pagina = await db.paginaInstitucional.findUnique({ where: { id: params.id } });
-  if (!pagina) {
+  if (!pagina || (!pagina.visivel && !await hasContentPermission(Permissions.PAGES_WRITE))) {
     return NextResponse.json({ error: "Não encontrada" }, { status: 404 });
   }
-  return NextResponse.json(pagina);
+  return NextResponse.json(sanitizeRichRecord(pagina), { headers: contentHeaders });
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {

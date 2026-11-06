@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile } from "@/lib/uploads";
 import { logAuditoria } from "@/lib/audit";
 import { withApiErrors } from "@/lib/api-errors";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 
 // Tipos permitidos para upload de documentos.
 const allowedTypes = [
@@ -17,9 +20,10 @@ const allowedTypes = [
 
 export async function GET() {
   const documentos = await db.arquivoDocumento.findMany({
+    where: await hasContentPermission(Permissions.DOCS_WRITE) ? undefined : { status: "ATIVO" },
     orderBy: [{ ordem: "asc" }, { dataUpload: "desc" }]
   });
-  return NextResponse.json(documentos);
+  return NextResponse.json(documentos, { headers: contentHeaders });
 }
 
 export const POST = withApiErrors(async (request: Request) => {

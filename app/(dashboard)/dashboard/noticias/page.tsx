@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
 import { NoticiasForm } from "@/components/forms/noticias-form";
 import { NoticiasActionButton } from "@/components/dashboard/noticias-actions";
@@ -76,7 +77,7 @@ export default async function NoticiasDashboard() {
                           id: noticia.id,
                           titulo: noticia.titulo,
                           resumo: noticia.resumo,
-                          conteudo: noticia.conteudo,
+                          conteudo: sanitizeRichHtml(noticia.conteudo),
                           dataPublicacao: noticia.dataPublicacao
                             ? noticia.dataPublicacao.toISOString()
                             : null,

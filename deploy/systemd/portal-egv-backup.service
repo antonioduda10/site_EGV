@@ -1,0 +1,15 @@
+[Unit]
+Description=Portal EGV database and uploads backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/opt/portal-egv/bin/backup.sh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/portal-egv /run/lock
+TimeoutStartSec=30min

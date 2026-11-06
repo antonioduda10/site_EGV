@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { redactLogDetails } from "./log-redaction";
 
 type AuditInput = {
   acao: string;
@@ -15,7 +16,7 @@ export async function logAuditoria(input: AuditInput) {
       entidadeAfetada: input.entidade,
       idRegistroAfetado: input.registroId ? String(input.registroId) : null,
       usuarioResponsavelId: input.usuarioId ? String(input.usuarioId) : null,
-      detalhesJson: input.detalhes ? JSON.stringify(input.detalhes) : null
+      detalhesJson: input.detalhes ? JSON.stringify(redactLogDetails(input.detalhes) ?? {}) : null
     }
   });
 }

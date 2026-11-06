@@ -6,6 +6,8 @@ import { Permissions } from "@/lib/permissions";
 import { usuarioSchema } from "@/lib/validators";
 import { hashPassword } from "@/lib/password";
 import { logAuditoria } from "@/lib/audit";
+import { safeUserSelect } from "@/lib/safe-user";
+import { withApiErrors } from "@/lib/api-errors";
 
 export async function GET() {
   const { allowed, session } = await requirePermission(Permissions.USERS_READ);
@@ -21,12 +23,12 @@ export async function GET() {
             OR: [{ superAdmin: true }, { email: "admin@egv.edu.br" }]
           }
         },
-    include: { perfis: { include: { perfil: true } } }
+    select: safeUserSelect
   });
   return NextResponse.json(usuarios);
 }
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   const { allowed, session } = await requirePermission(Permissions.USERS_WRITE);
   if (!allowed || !session) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -45,12 +47,14 @@ export async function POST(request: Request) {
 
   let usuario;
   try {
-    usuario = await db.usuario.create({
-      data: {
-        nome: parsed.data.nome,
-        email: parsed.data.email,
-        senhaHash: await hashPassword(parsed.data.senha)
-      }
+    const senhaHash = await hashPassword(parsed.data.senha);
+    usuario = await db.$transaction(async (tx) => {
+      const created = await tx.usuario.create({
+        data: { nome: parsed.data.nome, email: parsed.data.email, senhaHash },
+        select: safeUserSelect
+      });
+      await tx.usuarioPerfil.create({ data: { usuarioId: created.id, perfilId: perfil.id } });
+      return created;
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -58,10 +62,6 @@ export async function POST(request: Request) {
     }
     throw error;
   }
-
-  await db.usuarioPerfil.create({
-    data: { usuarioId: usuario.id, perfilId: perfil.id }
-  });
 
   await logAuditoria({
     acao: "CRIAR",
@@ -71,4 +71,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(usuario, { status: 201 });
-}
+}, "usuarios.criar");

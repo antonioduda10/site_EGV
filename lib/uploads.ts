@@ -1,8 +1,10 @@
 import path from "path";
 import fs from "fs/promises";
+import { randomUUID } from "node:crypto";
+import { validateUpload } from "./upload-policy";
+import { assertRealUploadPath, resolvePathInsideUploads } from "./upload-path";
 
 const uploadDir = process.env.UPLOAD_DIR ?? "./uploads";
-const uploadDirResolved = path.resolve(uploadDir);
 
 export async function ensureUploadDir() {
   await fs.mkdir(uploadDir, { recursive: true });
@@ -15,39 +17,31 @@ export function safeFilename(original: string) {
 }
 
 export function uploadPath(filename: string) {
-  return path.join(uploadDir, filename);
+  return resolvePathInsideUploads(filename);
 }
 
 export async function uploadFile(file: File, folder?: string) {
+  const destination = folder ?? "midia";
+  const { bytes, extension } = await validateUpload(file, destination);
   await ensureUploadDir();
-  const filename = safeFilename(file.name);
-  const finalPath = folder ? path.join(uploadDir, folder) : uploadDir;
+  const filename = `${randomUUID()}${extension}`;
+  const filepath = resolvePathInsideUploads(`${destination}/${filename}`);
+  const finalPath = path.dirname(filepath);
+  await assertRealUploadPath(filepath, true);
   await fs.mkdir(finalPath, { recursive: true });
-  const filepath = path.join(finalPath, filename);
-  const bytes = await file.arrayBuffer();
-  await fs.writeFile(filepath, Buffer.from(bytes));
-  const publicPath = folder ? `${folder}/${filename}` : filename;
+  await assertRealUploadPath(filepath, true);
+  await fs.writeFile(filepath, bytes, { flag: "wx" });
+  const publicPath = `${destination}/${filename}`;
   return `/api/uploads/${publicPath.replace(/\\/g, "/")}`;
 }
 
 export async function deleteFile(filepath: string) {
   if (!filepath) return;
   try {
-    const normalized = filepath.replace(/\\/g, "/");
-    let targetPath = filepath;
-
-    if (normalized.startsWith("/api/uploads/")) {
-      const relative = normalized.replace("/api/uploads/", "");
-      targetPath = path.resolve(uploadDirResolved, relative);
-    } else if (normalized.includes("/uploads/")) {
-      const [, relative] = normalized.split("/uploads/");
-      if (relative) {
-        targetPath = path.resolve(uploadDirResolved, relative);
-      }
-    }
-
+    const targetPath = await assertRealUploadPath(resolvePathInsideUploads(filepath));
     await fs.unlink(targetPath);
-  } catch {
-    // ignora erro se arquivo não existir
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return;
+    throw error;
   }
 }

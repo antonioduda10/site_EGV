@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { logAuditoria } from "@/lib/audit";
 import { normalizeUploadAssetUrl } from "@/lib/content-url";
@@ -6,16 +8,17 @@ import { Permissions } from "@/lib/permissions";
 import { requirePermission } from "@/lib/require-permission";
 import { secretariaServidorSchema } from "@/lib/validators";
 import type { z } from "zod";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 
 type SecretariaServidorInput = z.infer<typeof secretariaServidorSchema>;
 
 export async function GET() {
   const servidores = await db.secretariaServidor.findMany({
-    where: { ativo: true },
+    where: await hasContentPermission(Permissions.PAGES_WRITE) ? undefined : { ativo: true },
     orderBy: [{ ordem: "asc" }, { nome: "asc" }]
   });
 
-  return NextResponse.json(servidores);
+  return NextResponse.json(servidores, { headers: contentHeaders });
 }
 
 export async function POST(request: Request) {

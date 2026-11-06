@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { parsePublicTexts } from "@/lib/public-texts";
 import { getPublicTextsJson } from "@/lib/public-texts-config";
 import { PublicPageHero } from "@/components/public-page-hero";
@@ -40,7 +40,7 @@ export default async function PaginaInstitucional({ params }: { params: { slug: 
   ]);
   if (!pagina) return notFound();
   const textos = parsePublicTexts(textosPublicosJson);
-  const conteudoNormalizado = rewriteUploadUrlsInHtml(pagina.conteudo);
+  const conteudoNormalizado = sanitizeRichHtml(pagina.conteudo);
   const resumo = stripHtml(pagina.conteudo);
 
   return (

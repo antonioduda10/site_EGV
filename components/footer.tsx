@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeHref } from "@/lib/safe-href";
 
 type LinkItem = { href: string; label: string; newTab?: boolean };
 type FooterData = {
@@ -130,7 +131,7 @@ export function Footer({ data, logoUrl }: { data?: FooterData; logoUrl?: string 
             {socialLinks.map((social, index) => (
               <a
                 key={`${social.nome}-${index}`}
-                href={social.href}
+                href={safeHref(social.href)}
                 target={social.newTab ? "_blank" : undefined}
                 rel={social.newTab ? "noreferrer" : undefined}
                 className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
@@ -307,6 +308,7 @@ function buildMapEmbedUrl(address: string, fixedUrl: string) {
 }
 
 function renderConfiguredLink(link: LinkItem, className: string) {
+  link = { ...link, href: safeHref(link.href) };
   const isExternal = link.href.startsWith("http://") || link.href.startsWith("https://");
   const shouldOpenInNewTab = Boolean(link.newTab ?? isExternal);
 

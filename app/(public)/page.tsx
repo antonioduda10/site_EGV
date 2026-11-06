@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeHref } from "@/lib/safe-href";
 import { db } from "@/lib/db";
 import { BannerCarousel } from "@/components/banner-carousel";
 import { toPublicUrl } from "@/lib/uploads-url";
@@ -8,6 +9,7 @@ import { getPublicTextsJson } from "@/lib/public-texts-config";
 import { parseHomeAlerts, parseHomeDisplaySettings } from "@/lib/home-alerts";
 import { getHomeAlertsJson } from "@/lib/home-alerts-config";
 import { createPublicMetadata } from "@/lib/seo";
+import { publicNewsWhere } from "@/lib/publication";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +38,7 @@ export default async function HomePage() {
       orderBy: { ordem: "asc" }
     }).catch(() => []),
     db.noticia.findMany({
-      where: { status: "PUBLICADO" },
+      where: publicNewsWhere(),
       orderBy: { dataPublicacao: "desc" },
       take: 3
     }).catch(() => []),
@@ -50,7 +52,7 @@ export default async function HomePage() {
   const textos = parsePublicTexts(textosPublicosJson);
   const avisos = parseHomeAlerts(avisosHomeJson).filter((aviso) => aviso.ativo !== false);
   const homeDisplaySettings = parseHomeDisplaySettings(avisosHomeJson);
-  const historiaLink = config?.botaoHistoriaLink || "/p/escola";
+  const historiaLink = safeHref(config?.botaoHistoriaLink, "/p/escola");
   const historiaNovaAba = Boolean(config?.botaoHistoriaNovaAba);
   const alertAnimationClass = homeDisplaySettings.alertAnimationEnabled
     ? `home-alert-highlight home-alert-highlight--${homeDisplaySettings.alertAnimationSpeed}`
@@ -130,7 +132,7 @@ export default async function HomePage() {
               return isExternal ? (
                 <a
                   key={`${item.href}-${index}`}
-                  href={item.href}
+                  href={safeHref(item.href)}
                   target={shouldOpenInNewTab ? "_blank" : undefined}
                   rel={shouldOpenInNewTab ? "noreferrer" : undefined}
                 >
@@ -139,7 +141,7 @@ export default async function HomePage() {
               ) : (
                 <Link
                   key={`${item.href}-${index}`}
-                  href={item.href}
+                  href={safeHref(item.href)}
                   target={shouldOpenInNewTab ? "_blank" : undefined}
                   rel={shouldOpenInNewTab ? "noreferrer" : undefined}
                 >
@@ -168,7 +170,7 @@ export default async function HomePage() {
 
           <div className={`grid min-w-0 gap-4 ${avisos.length > 1 ? "lg:grid-cols-2" : ""}`}>
             {avisos.map((aviso, index) => {
-              const href = aviso.href?.trim();
+              const href = aviso.href ? safeHref(aviso.href, "") : "";
               const imagem = toPublicUrl(aviso.imagemUrl);
               const isExternal = Boolean(href?.startsWith("http://") || href?.startsWith("https://"));
               const content = (

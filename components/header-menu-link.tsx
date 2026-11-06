@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { safeHref } from "@/lib/safe-href";
 import { usePathname } from "next/navigation";
 import type { MouseEventHandler } from "react";
 
@@ -16,6 +17,7 @@ export function HeaderMenuLink({
   onClick?: MouseEventHandler<HTMLAnchorElement>;
 }) {
   const pathname = usePathname();
+  link = { ...link, href: safeHref(link.href) };
   const icon = getHeaderIcon(link.href, link.label);
   const isExternal = link.href.startsWith("http://") || link.href.startsWith("https://");
   const shouldOpenInNewTab = Boolean(link.newTab ?? isExternal);

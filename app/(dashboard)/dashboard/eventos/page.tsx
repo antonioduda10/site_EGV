@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
 import { EventosForm } from "@/components/forms/eventos-form";
 import { requirePermission } from "@/lib/require-permission";
@@ -133,7 +134,7 @@ export default async function EventosDashboard() {
                             id: evento.id,
                             titulo: evento.titulo,
                             descricao: evento.descricao,
-                            conteudo: evento.conteudo,
+                            conteudo: sanitizeRichHtml(evento.conteudo),
                             dataInicio: evento.dataInicio.toISOString(),
                             dataFim: evento.dataFim ? evento.dataFim.toISOString() : null,
                             local: evento.local,

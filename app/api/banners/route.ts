@@ -1,20 +1,25 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile, deleteFile } from "@/lib/uploads";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
+import { withApiErrors } from "@/lib/api-errors";
 
 // Tipos de imagem permitidos para banners.
 const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
 export async function GET() {
   const banners = await db.banner.findMany({
+    where: await hasContentPermission(Permissions.BANNERS_WRITE) ? undefined : { ativo: true },
     orderBy: { ordem: "asc" }
   });
-  return NextResponse.json(banners);
+  return NextResponse.json(banners, { headers: contentHeaders });
 }
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   // Protege criacao por permissao de paginas.
   const { allowed, session } = await requirePermission(Permissions.BANNERS_WRITE);
   if (!allowed || !session) {
@@ -54,4 +59,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(banner, { status: 201 });
-}
+}, "banners.criar");

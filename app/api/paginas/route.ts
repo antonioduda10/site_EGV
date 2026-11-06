@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { paginaSchema } from "@/lib/validators";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml, sanitizeRichRecord } from "@/lib/sanitize-rich-html";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 
 function escapeHtml(value: string) {
   return value
@@ -18,14 +21,14 @@ function escapeHtml(value: string) {
 function normalizeContent(input: string) {
   // Mantem HTML recebido; se for texto puro, converte para paragrafo.
   const hasTag = /<\/?[a-z][\s\S]*>/i.test(input);
-  if (hasTag) return rewriteUploadUrlsInHtml(input);
+  if (hasTag) return sanitizeRichHtml(input);
   const escaped = escapeHtml(input).replace(/\r?\n/g, "<br />");
   return `<p>${escaped}</p>`;
 }
 
 export async function GET() {
-  const paginas = await db.paginaInstitucional.findMany({ orderBy: { ordem: "asc" } });
-  return NextResponse.json(paginas);
+  const paginas = await db.paginaInstitucional.findMany({ where: await hasContentPermission(Permissions.PAGES_WRITE) ? undefined : { visivel: true }, orderBy: { ordem: "asc" } });
+  return NextResponse.json(paginas.map(sanitizeRichRecord), { headers: contentHeaders });
 }
 
 export async function POST(request: Request) {
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
       // Slug unico: evita duplicidade de paginas com o mesmo endereco.
       return NextResponse.json({ error: "Slug ja existe. Use outro." }, { status: 409 });
     }
-    console.error("Erro ao salvar pagina", error);
+    console.error("Erro interno ao salvar pagina.");
     return NextResponse.json({ error: "Erro ao salvar pagina" }, { status: 500 });
   }
 }

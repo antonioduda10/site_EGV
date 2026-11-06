@@ -7,16 +7,17 @@ import { Permissions } from "@/lib/permissions";
 import { requirePermission } from "@/lib/require-permission";
 import { secretariaServidorSchema } from "@/lib/validators";
 import type { z } from "zod";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 
 type SecretariaServidorInput = z.infer<typeof secretariaServidorSchema>;
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const servidor = await db.secretariaServidor.findUnique({ where: { id: params.id } });
-  if (!servidor) {
+  if (!servidor || (!servidor.ativo && !await hasContentPermission(Permissions.PAGES_WRITE))) {
     return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
   }
 
-  return NextResponse.json(servidor);
+  return NextResponse.json(servidor, { headers: contentHeaders });
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {

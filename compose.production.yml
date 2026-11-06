@@ -1,0 +1,122 @@
+name: portal-egv
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?required}
+      POSTGRES_USER: ${POSTGRES_USER:?required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+      APP_DATABASE_PASSWORD: ${APP_DATABASE_PASSWORD:?required}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust
+    command: ["postgres", "-c", "max_connections=40", "-c", "shared_buffers=128MB", "-c", "work_mem=4MB", "-c", "log_min_error_statement=panic"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - /opt/portal-egv/shared/postgres-init:/docker-entrypoint-initdb.d:ro
+    networks: [database]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    logging: *logging
+
+  app:
+    image: ${PORTAL_IMAGE:?required}
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?required}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:?required}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?required}
+      UPLOAD_DIR: /app/uploads
+      ERROR_LOG_DIR: /app/logs
+      NEXT_TELEMETRY_DISABLED: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - uploads:/app/uploads
+      - app_logs:/app/logs
+    tmpfs:
+      - /tmp:size=134217728,mode=1777
+      - /app/.next-build/cache:size=67108864,uid=1001,gid=1001
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [edge, database]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: portal-egv_edge
+      traefik.http.services.portal-egv.loadbalancer.server.port: "3000"
+      traefik.http.routers.portal-egv-http.rule: Host(`${PORTAL_HOST:?required}`)
+      traefik.http.routers.portal-egv-http.entrypoints: web
+      traefik.http.routers.portal-egv-http.priority: "100"
+      traefik.http.routers.portal-egv-http.service: portal-egv
+      traefik.http.routers.portal-egv-admin.rule: Host(`${PORTAL_HOST}`) && (PathPrefix(`/dashboard`) || Path(`/login`) || Path(`/recuperar`) || PathPrefix(`/api/usuarios`) || PathPrefix(`/api/logs`) || PathPrefix(`/api/auth/callback`) || PathPrefix(`/api/auth/signin`) || PathPrefix(`/api/auth/signout`) || Path(`/api/auth/login`) || Path(`/api/auth/forgot`) || Path(`/api/auth/reset`) || (PathPrefix(`/api/`) && !Method(`GET`) && !Path(`/api/contato`) && !Path(`/api/consent`) && !Path(`/api/pageview`) && !PathRegexp(`^/api/videos/[^/]+/(like|view)$`)))
+      traefik.http.routers.portal-egv-admin.entrypoints: web
+      traefik.http.routers.portal-egv-admin.priority: "300"
+      traefik.http.routers.portal-egv-admin.service: portal-egv
+      traefik.http.routers.portal-egv-admin.middlewares: portal-egv-admin-local
+      traefik.http.middlewares.portal-egv-admin-local.ipallowlist.sourcerange: 127.0.0.1/32,::1/128
+      traefik.http.routers.portal-egv-upgrade-block.rule: Host(`${PORTAL_HOST}`) && HeaderRegexp(`Upgrade`, `(?i)websocket`)
+      traefik.http.routers.portal-egv-upgrade-block.entrypoints: web
+      traefik.http.routers.portal-egv-upgrade-block.priority: "400"
+      traefik.http.routers.portal-egv-upgrade-block.service: portal-egv
+      traefik.http.routers.portal-egv-upgrade-block.middlewares: portal-egv-admin-local
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 10s
+      start_period: 30s
+      retries: 5
+    mem_limit: 1024m
+    memswap_limit: 1536m
+    logging: *logging
+
+  migrate:
+    image: ${PORTAL_IMAGE}-migrate
+    build:
+      context: .
+      target: migration
+    profiles: [tools]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks: [database]
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 512m
+    logging: *logging
+
+networks:
+  edge:
+    name: portal-egv_edge
+  database:
+    name: portal-egv_database
+    internal: true
+
+volumes:
+  postgres_data:
+    name: portal-egv_postgres_data
+    external: true
+  uploads:
+    name: portal-egv_uploads
+    external: true
+  app_logs:
+    name: portal-egv_app_logs
+    external: true

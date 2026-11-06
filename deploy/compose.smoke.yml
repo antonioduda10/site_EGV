@@ -1,0 +1,4 @@
+# Only temporary verification containers need outbound HTTPS; production DB stays internal.
+services:
+  migrate:
+    networks: [database, edge]

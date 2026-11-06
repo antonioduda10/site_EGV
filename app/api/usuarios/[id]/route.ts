@@ -9,10 +9,11 @@ import { logAuditoria } from "@/lib/audit";
 import { isProtectedSuperAdmin } from "@/lib/super-master";
 import { Permissions } from "@/lib/permissions";
 import { can } from "@/lib/rbac";
+import { safeUserSelect } from "@/lib/safe-user";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session || session.invalidated || !session.user?.id) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
@@ -26,7 +27,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
-  const usuario = await db.usuario.findUnique({ where: { id: params.id } });
+  const usuario = await db.usuario.findUnique({ where: { id: params.id }, select: safeUserSelect });
   if (!usuario) {
     return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
   }
@@ -40,7 +41,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const body = await request.json();
   const parsed = usuarioUpdateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? "Dados inválidos" }, { status: 400 });
   }
 
   const data: Record<string, unknown> = {
@@ -60,6 +61,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   if (parsed.data.senha) {
     data.senhaHash = await hashPassword(parsed.data.senha);
+    data.sessaoVersao = { increment: 1 };
   }
 
   let updated;
@@ -67,7 +69,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     updated = await db.$transaction(async (tx) => {
       const usuarioAtualizado = await tx.usuario.update({
         where: { id: usuario.id },
-        data
+        data,
+        select: safeUserSelect
       });
 
       if (perfilSelecionadoId) {
@@ -101,7 +104,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session || session.invalidated || !session.user?.id) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
@@ -115,7 +118,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
-  const usuario = await db.usuario.findUnique({ where: { id: params.id } });
+  const usuario = await db.usuario.findUnique({ where: { id: params.id }, select: safeUserSelect });
   if (!usuario) {
     return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
   }

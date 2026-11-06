@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { newPasswordError, PASSWORD_POLICY_MESSAGE } from "./password-policy";
+
+export const newPasswordSchema = z.string().refine((value) => newPasswordError(value) === null, PASSWORD_POLICY_MESSAGE);
 
 z.setErrorMap((issue, ctx) => {
   if (issue.code === "invalid_string" && issue.validation === "email") {
@@ -66,15 +69,15 @@ export const contatoSchema = z.object({
 export const usuarioSchema = z.object({
   nome: z.string().min(3),
   email: z.string().email(),
-  senha: z.string().min(6),
+  senha: newPasswordSchema,
   perfil: z.string().min(2)
 });
 
 export const usuarioUpdateSchema = z.object({
   nome: z.string().min(3).optional(),
   email: z.string().email().optional(),
-  senha: z.string().min(6).optional(),
-  status: z.string().optional(),
+  senha: newPasswordSchema.optional(),
+  status: z.enum(["ATIVO", "INATIVO"]).optional(),
   perfil: z.string().min(2).optional()
 });
 

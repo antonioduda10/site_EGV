@@ -10,7 +10,8 @@ type E2ESuite = { title: string; suites?: E2ESuite[]; specs?: { title: string; o
 type E2EReport = { stats: { expected: number; unexpected: number; skipped: number }; suites: E2ESuite[] };
 type Coverage = { total: { lines: { pct: number }; statements: { pct: number }; branches: { pct: number }; functions: { pct: number } } };
 
-const directory = "docs/incremento-II/evidencias";
+const aula12 = Boolean(process.env.EGV_EVIDENCE_DIR);
+const directory = process.env.EGV_EVIDENCE_DIR || "docs/incremento-II/evidencias";
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const cell = (value: string) => value.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
@@ -24,7 +25,7 @@ function html(title: string, body: string) {
     main{max-width:1100px;margin:auto}h1{font-size:32px;margin:0 0 8px}h2{font-size:22px;margin:32px 0 12px}
     p{margin:8px 0;color:#334155}.metrics{display:flex;gap:24px;margin:28px 0}.metric{flex:1;background:white;border:1px solid #cbd5e1;border-radius:8px;padding:20px}
     strong{font-size:32px;color:#166534;display:block}table{width:100%;border-collapse:collapse;background:white}td,th{text-align:left;padding:14px;border-bottom:1px solid #cbd5e1}code{font:16px Consolas,monospace}.note{font-size:14px;margin-top:24px}
-    </style><main><p>Portal EGV | Incremento II | Evidência de execução</p><h1>${escape(title)}</h1>${body}</main></html>`;
+    </style><main><p>Portal EGV | ${aula12 ? "Aula 12 - Seguranca" : "Incremento II"} | Evidência de execução</p><h1>${escape(title)}</h1>${body}</main></html>`;
 }
 
 async function main() {
@@ -49,16 +50,18 @@ async function main() {
     }
   }
   for (const spec of e2eCases) rows.push(`| T-${String(rows.length + 1).padStart(3, "0")} | Navegador / PostgreSQL isolado | ${cell(spec.title)} | Assercoes cumpridas | Aprovado |`);
-  await writeFile("docs/incremento-II/CASOS_TESTE.md", `# Casos de teste executados\n\nTabela gerada dos relatorios reais do Vitest e Playwright. Cada linha representa um caso; testes de responsividade percorrem varias rotas dentro do mesmo caso.\n\n| CASO DE TESTE | FUNCIONALIDADE | RESULTADO ESPERADO | RESULTADO OBTIDO | SITUACAO |\n| --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`);
+  await writeFile(aula12 ? "docs/aula12-seguranca/CASOS_TESTE_SEGURANCA.md" : "docs/incremento-II/CASOS_TESTE.md", `# Casos de teste executados\n\nTabela gerada dos relatorios reais do Vitest e Playwright. Cada linha representa um caso; testes de responsividade percorrem varias rotas dentro do mesmo caso.\n\n| CASO DE TESTE | FUNCIONALIDADE | RESULTADO ESPERADO | RESULTADO OBTIDO | SITUACAO |\n| --- | --- | --- | --- | --- |\n${rows.join("\n")}\n`);
 
   const testHtml = html("Testes automatizados aprovados", `<div class="metrics"><div class="metric"><strong>${unit.numPassedTests}</strong>testes de unidade e integração</div><div class="metric"><strong>${e2e.stats.expected}</strong>testes de navegador</div><div class="metric"><strong>0</strong>falhas</div></div><h2>Cobertura dos arquivos críticos selecionados</h2><table><tr><th>Linhas</th><th>Branches</th><th>Funções</th></tr><tr><td>${coverage.total.lines.pct}%</td><td>${coverage.total.branches.pct}%</td><td>${coverage.total.functions.pct}%</td></tr></table><p>Autenticação, RBAC, APIs de notícias/documentos, uploads e fluxos reais em ambiente isolado.</p><p class="note">Fonte: test-results/vitest.json, test-results/e2e.json e coverage/coverage-summary.json. Não é uma tela do portal nem uma simulação de terminal.</p>`);
-  const validationHtml = html("Validação técnica", `<p>Comandos concluídos com código de saída zero.</p><table><tr><th>Comando</th><th>Resultado</th></tr>${checks.map((check) => `<tr><td><code>${escape(check.command)}</code></td><td>Aprovado (0)</td></tr>`).join("")}</table><p>O lint conserva 23 avisos preexistentes sobre imagens &lt;img&gt;. Os logs completos acompanham esta evidência.</p><p class="note">Fonte: docs/incremento-II/evidencias/validacao.json e logs dos comandos.</p>`);
+  const lintLog = await readFile(`${directory}/lint.txt`, "utf8");
+  const imageWarnings = (lintLog.match(/Warning: Using `<img>`/g) ?? []).length;
+  const validationHtml = html("Validação técnica", `<p>Comandos concluídos com código de saída zero.</p><table><tr><th>Comando</th><th>Resultado</th></tr>${checks.map((check) => `<tr><td><code>${escape(check.command)}</code></td><td>Aprovado (0)</td></tr>`).join("")}</table><p>O lint registra ${imageWarnings} avisos sobre imagens &lt;img&gt;. Os logs completos acompanham esta evidência.</p><p class="note">Fonte: ${escape(directory)}/validacao.json e logs dos comandos.</p>`);
   await writeFile(`${directory}/resumo-testes.html`, testHtml);
   await writeFile(`${directory}/resumo-validacao.html`, validationHtml);
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
-    for (const [content, name] of [[testHtml, "07-testes-aprovados.png"], [validationHtml, "08-build-validacao.png"]]) {
+    for (const [content, name] of [[testHtml, aula12 ? "07-testes-seguranca.png" : "07-testes-aprovados.png"], [validationHtml, aula12 ? "08-validacao-final.png" : "08-build-validacao.png"]]) {
       await page.setContent(content);
       await page.screenshot({ path: `${directory}/${name}`, fullPage: true });
     }

@@ -1,4 +1,5 @@
 "use client";
+import { safeHref } from "@/lib/safe-href";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -87,7 +88,7 @@ export function BannerCarousel({ banners, intervalMs = 5000 }: { banners: Banner
     <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden group">
       {/* Banner clicável quando houver link */}
       {currentBanner.link ? (
-        <Link href={currentBanner.link} className="block w-full h-full">
+        <Link href={safeHref(currentBanner.link)} className="block w-full h-full">
           {bannerContent}
         </Link>
       ) : (

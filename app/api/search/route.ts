@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { publicNewsWhere } from "@/lib/publication";
+import { sanitizeRichRecord } from "@/lib/sanitize-rich-html";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -7,7 +9,7 @@ export async function GET(request: Request) {
 
   const [noticias, paginas, documentos] = await Promise.all([
     db.noticia.findMany({
-      where: { status: "PUBLICADO", OR: [{ titulo: { contains: q, mode: "insensitive" } }, { conteudo: { contains: q, mode: "insensitive" } }] },
+      where: { AND: [publicNewsWhere()], OR: [{ titulo: { contains: q, mode: "insensitive" } }, { conteudo: { contains: q, mode: "insensitive" } }] },
       take: 5
     }),
     db.paginaInstitucional.findMany({
@@ -20,5 +22,5 @@ export async function GET(request: Request) {
     })
   ]);
 
-  return NextResponse.json({ noticias, paginas, documentos });
+  return NextResponse.json({ noticias: noticias.map(sanitizeRichRecord), paginas: paginas.map(sanitizeRichRecord), documentos });
 }

@@ -1,6 +1,6 @@
 import { PublicPageHero } from "@/components/public-page-hero";
 import { db } from "@/lib/db";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { createPublicMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export default async function PoliticaPrivacidade() {
   const config = await db.configuracaoSite.findFirst({
     select: { politicaPrivacidade: true }
   }).catch(() => null);
-  const conteudo = rewriteUploadUrlsInHtml(
+  const conteudo = sanitizeRichHtml(
     config?.politicaPrivacidade ?? "<p>Esta página descreve como os dados são tratados conforme a LGPD.</p>"
   );
   return (

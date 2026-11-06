@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile } from "@/lib/uploads";
+import { withApiErrors } from "@/lib/api-errors";
 import { logAuditoria } from "@/lib/audit";
 
 const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   // Upload de imagem usado pelo editor de paginas.
   const { allowed, session } = await requirePermission(Permissions.PAGES_WRITE);
   if (!allowed || !session) {
@@ -34,4 +35,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ url }, { status: 201 });
-}
+}, "uploads.paginas");

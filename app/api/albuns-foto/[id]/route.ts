@@ -51,7 +51,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     return NextResponse.json(album);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro interno ao atualizar álbum";
+    const message = "Erro interno ao atualizar álbum";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -74,7 +74,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro interno ao excluir álbum";
+    const message = "Erro interno ao excluir álbum";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

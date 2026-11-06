@@ -3,9 +3,12 @@ import { db } from "@/lib/db";
 import { logAuditoria } from "@/lib/audit";
 import fs from "fs/promises";
 import path from "path";
+import { resolvePathInsideUploads, assertRealUploadPath } from "@/lib/upload-path";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
+import { Permissions } from "@/lib/permissions";
+import { verifiedStoredMime } from "@/lib/upload-policy";
 
 // Diretório base para localizar arquivos salvos.
-const uploadDir = path.resolve(process.env.UPLOAD_DIR ?? "./uploads");
 
 // Fallback de extensao quando o caminho nao traz sufixo.
 const mimeToExt: Record<string, string> = {
@@ -29,24 +32,18 @@ function safeDownloadName(value: string) {
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const doc = await db.arquivoDocumento.findUnique({ where: { id: params.id } });
-  if (!doc) {
+  if (!doc || (doc.status !== "ATIVO" && !await hasContentPermission(Permissions.DOCS_WRITE))) {
     return NextResponse.json({ error: "Documento não encontrado" }, { status: 404 });
   }
 
   // Aceita caminhos antigos e converte para caminho real.
-  const normalized = (doc.caminho || "").replace(/\\/g, "/");
-  let filePath = doc.caminho;
-  if (normalized.startsWith("/api/uploads/")) {
-    const relative = normalized.replace("/api/uploads/", "");
-    filePath = path.resolve(uploadDir, relative);
-  } else if (normalized.includes("/uploads/")) {
-    const [, relative] = normalized.split("/uploads/");
-    if (relative) {
-      filePath = path.resolve(uploadDir, relative);
-    }
-  }
-
-  const file = await fs.readFile(filePath);
+  let file: Buffer;
+  try {
+    const filePath = await assertRealUploadPath(resolvePathInsideUploads(doc.caminho));
+    file = await fs.readFile(filePath);
+  } catch { return NextResponse.json({ error: "Arquivo não encontrado" }, { status: 404 }); }
+  const verifiedType = await verifiedStoredMime(file, path.extname(doc.caminho));
+  if (!verifiedType || verifiedType !== doc.tipo || !Object.hasOwn(mimeToExt, verifiedType)) return NextResponse.json({ error: "Arquivo não encontrado" }, { status: 404 });
   // Auditoria de download (sem usuario por ser publico).
   await logAuditoria({
     acao: "DOWNLOAD",
@@ -62,7 +59,9 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
   return new NextResponse(file, {
     headers: {
-      "Content-Type": doc.tipo,
+      ...contentHeaders,
+      "X-Content-Type-Options": "nosniff",
+      "Content-Type": verifiedType,
       "Content-Disposition": `attachment; filename=\"${filename}\"; filename*=UTF-8''${encodeURIComponent(filename)}`
     }
   });

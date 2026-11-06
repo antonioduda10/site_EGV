@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
+import { parseHomeAlerts, parseHomeDisplaySettings, serializeHomeAlertsConfig } from "@/lib/home-alerts";
 import { getPublicTextsJson, savePublicTextsJson } from "@/lib/public-texts-config";
 import { getHomeAlertsJson, saveHomeAlertsJson } from "@/lib/home-alerts-config";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const config = await db.configuracaoSite.findFirst({
@@ -28,7 +32,14 @@ export async function GET() {
     getPublicTextsJson(),
     getHomeAlertsJson()
   ]);
-  return NextResponse.json(config ? { ...config, textosPublicosJson, avisosHomeJson } : null);
+  const canManage = await hasContentPermission(Permissions.CONFIG_WRITE);
+  const publicAlerts = serializeHomeAlertsConfig(parseHomeAlerts(avisosHomeJson).filter((alert) => alert.ativo !== false), parseHomeDisplaySettings(avisosHomeJson));
+  return NextResponse.json(config ? {
+    ...config,
+    politicaPrivacidade: sanitizeRichHtml(config.politicaPrivacidade),
+    cookies: sanitizeRichHtml(config.cookies), termos: sanitizeRichHtml(config.termos),
+    textosPublicosJson, avisosHomeJson: canManage ? avisosHomeJson : publicAlerts
+  } : null, { headers: contentHeaders });
 }
 
 export async function POST(request: Request) {
@@ -44,9 +55,9 @@ export async function POST(request: Request) {
     logoUrl: body.logoUrl ?? null,
     corPrimaria: body.corPrimaria ?? null,
     corSecundaria: body.corSecundaria ?? null,
-    politicaPrivacidade: body.politicaPrivacidade ? rewriteUploadUrlsInHtml(body.politicaPrivacidade) : null,
-    cookies: body.cookies ? rewriteUploadUrlsInHtml(body.cookies) : null,
-    termos: body.termos ? rewriteUploadUrlsInHtml(body.termos) : null,
+    politicaPrivacidade: body.politicaPrivacidade ? sanitizeRichHtml(body.politicaPrivacidade) : null,
+    cookies: body.cookies ? sanitizeRichHtml(body.cookies) : null,
+    termos: body.termos ? sanitizeRichHtml(body.termos) : null,
     botaoHistoriaLink: body.botaoHistoriaLink ?? null,
     botaoHistoriaNovaAba: Boolean(body.botaoHistoriaNovaAba),
     menuJson: body.menuJson ?? null,

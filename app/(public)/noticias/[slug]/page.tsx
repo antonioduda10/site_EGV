@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { toPublicUrl } from "@/lib/uploads-url";
 import { PublicPageHero } from "@/components/public-page-hero";
 import { createPublicMetadata, stripHtmlToText } from "@/lib/seo";
+import { publicNewsWhere } from "@/lib/publication";
 import {
   getNewsCoverFrameClass,
   getNewsCoverImageClass,
@@ -16,8 +17,8 @@ export const dynamic = "force-dynamic";
 const DEFAULT_NEWS_COVER = "/noticias/capa-padrao.svg";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const noticia = await db.noticia.findUnique({
-    where: { slug: params.slug },
+  const noticia = await db.noticia.findFirst({
+    where: { AND: [publicNewsWhere(), { slug: params.slug }] },
     select: { titulo: true, resumo: true, conteudo: true, imagemCapa: true }
   });
 
@@ -40,11 +41,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function NoticiaDetalhe({ params }: { params: { slug: string } }) {
   // Busca a noticia pelo slug para exibir o conteudo completo.
-  const noticia = await db.noticia.findUnique({
-    where: { slug: params.slug }
+  const noticia = await db.noticia.findFirst({
+    where: { AND: [publicNewsWhere(), { slug: params.slug }] }
   });
   if (!noticia) return notFound();
-  const conteudoNormalizado = rewriteUploadUrlsInHtml(noticia.conteudo);
+  const conteudoNormalizado = sanitizeRichHtml(noticia.conteudo);
   const dataPublicacao = noticia.dataPublicacao
     ? new Date(noticia.dataPublicacao).toLocaleDateString("pt-BR")
     : "Data não informada";

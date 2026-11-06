@@ -3,10 +3,11 @@ import { logAuditoria } from "@/lib/audit";
 import { Permissions } from "@/lib/permissions";
 import { requirePermission } from "@/lib/require-permission";
 import { uploadFile } from "@/lib/uploads";
+import { withApiErrors } from "@/lib/api-errors";
 
 const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-export async function POST(request: Request) {
+export const POST = withApiErrors(async (request: Request) => {
   const { allowed, session } = await requirePermission(Permissions.PAGES_WRITE);
   if (!allowed || !session) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -32,4 +33,4 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ url }, { status: 201 });
-}
+}, "uploads.secretaria");

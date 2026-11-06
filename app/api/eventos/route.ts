@@ -4,15 +4,19 @@ import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { logAuditoria } from "@/lib/audit";
-import { rewriteUploadUrlsInHtml } from "@/lib/content-url";
+import { sanitizeRichHtml, sanitizeRichRecord } from "@/lib/sanitize-rich-html";
+import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 import { normalizeEventOrderValue, reorderEventosByPosition } from "@/lib/event-order";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   // Lista eventos em ordem cronologica.
   const eventos = await db.evento.findMany({
+    where: await hasContentPermission(Permissions.EVENTS_WRITE) ? undefined : { status: "PUBLICADO" },
     orderBy: [{ ordem: "asc" }, { dataInicio: "asc" }]
   });
-  return NextResponse.json(eventos);
+  return NextResponse.json(eventos.map(sanitizeRichRecord), { headers: contentHeaders });
 }
 
 export async function POST(request: Request) {
@@ -34,7 +38,7 @@ export async function POST(request: Request) {
     data: {
       titulo: parsed.data.titulo,
       descricao: parsed.data.descricao,
-      conteudo: rewriteUploadUrlsInHtml(parsed.data.conteudo),
+      conteudo: sanitizeRichHtml(parsed.data.conteudo),
       dataInicio: new Date(parsed.data.dataInicio),
       dataFim: parsed.data.dataFim ? new Date(parsed.data.dataFim) : null,
       local: parsed.data.local,

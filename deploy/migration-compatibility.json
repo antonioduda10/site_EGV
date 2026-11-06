@@ -1,0 +1,8 @@
+[
+  {
+    "migration": "20260522005000_prepare_sugestao_contato_index",
+    "recordedChecksum": "3411ba0eabeb065663ded611ccbc23ff636f95e71735a2f6616250d165f6f4ea",
+    "sourceChecksum": "82ea24f20a64391d4bbd2ed97b7a1e852c0f5f248434116d906277cc51a234c6",
+    "reason": "Historical source edit predating VPS deployment. On 2026-11-05 the source database was verified identical to schema.prisma by prisma migrate diff (exit 0). Preserve the original migration history rather than falsifying its checksum. Only this exact pair is accepted."
+  }
+]

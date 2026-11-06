@@ -1,0 +1,11 @@
+/var/lib/docker/volumes/portal-egv_app_logs/_data/*.log {
+    daily
+    maxsize 5M
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    su root root
+}

@@ -4,7 +4,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { encode } from "next-auth/jwt";
 import { SESSION_IDLE_TIMEOUT_MS } from "../../lib/session-policy";
 
-const evidenceDir = "docs/incremento-II/evidencias";
+const evidenceDir = process.env.EGV_EVIDENCE_DIR || "docs/incremento-II/evidencias";
 const routes = ["/", "/noticias", "/eventos", "/documentos", "/galeria", "/galeria/fotos", "/galeria/videos", "/secretaria", "/contato", "/login"];
 const adminRoutes = ["/dashboard", "/dashboard/noticias", "/dashboard/eventos", "/dashboard/documentos", "/dashboard/paginas", "/dashboard/banners", "/dashboard/galeria/fotos", "/dashboard/galeria/videos", "/dashboard/usuarios", "/dashboard/config", "/dashboard/secretaria", "/dashboard/contatos", "/dashboard/relatorios"];
 
@@ -254,7 +254,7 @@ test("A11Y-01 WCAG A/AA nas telas publicas e formulario administrativo", async (
   results.push({ path: "/ (cookies, escuro)", violations: cookiesScan.violations.map(({ id, impact, nodes }) => ({ id, impact, elements: nodes.map((node) => node.target) })) });
   await mkdir(evidenceDir, { recursive: true });
   await writeFile(`${evidenceDir}/acessibilidade.json`, JSON.stringify(results, null, 2));
-  expect(results.filter((result) => result.violations.length).map((result) => result.path), "Detalhes em docs/incremento-II/evidencias/acessibilidade.json").toEqual([]);
+  expect(results.filter((result) => result.violations.length).map((result) => result.path), `Detalhes em ${evidenceDir}/acessibilidade.json`).toEqual([]);
 });
 
 test("SESSION-01 conserva login entre painel e paginas publicas e permite sair", async ({ page }) => {

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 
-  const user = await db.usuario.findUnique({ where: { email: parsed.data.email } });
+  const user = await db.usuario.findUnique({ where: { email: parsed.data.email }, select: { id: true } });
   if (user) {
     const token = crypto.randomUUID();
     await db.passwordResetToken.create({

@@ -1,6 +1,7 @@
 import { vi } from "vitest";
 
 const query = () => vi.fn();
+const model = () => ({ findUnique: query(), findFirst: query(), findMany: query(), create: query(), update: query(), updateMany: query(), delete: query(), deleteMany: query() });
 
 // Only explicit test doubles are available: importing a route never opens PostgreSQL.
 export const dbMock = {
@@ -8,6 +9,10 @@ export const dbMock = {
   noticia: { findUnique: query(), findMany: query(), create: query(), update: query(), updateMany: query(), delete: query() },
   arquivoDocumento: { findUnique: query(), findFirst: query(), findMany: query(), create: query(), update: query(), delete: query() },
   logAuditoria: { create: query() },
+  perfil: model(), usuarioPerfil: model(), usuarioPermissao: model(), passwordResetToken: model(),
+  evento: model(), paginaInstitucional: model(), banner: model(), secretariaServidor: model(),
+  midia: model(), albumFoto: model(), videoGaleria: model(), configuracaoSite: model(),
+  $transaction: query(),
   $queryRaw: query(),
   $executeRaw: query(),
   $executeRawUnsafe: query()

@@ -16,13 +16,12 @@ export async function POST(request: Request) {
     method: asString(body.method),
     path: normalizePath(asString(body.path) ?? asString(body.url)),
     status: asNumber(body.status),
-    message: asString(body.message) ?? "Falha registrada no painel",
+    message: "Falha registrada no painel",
     usuarioId: session.user.id,
-    usuarioNome: session.user.name ?? session.user.email,
+    usuarioNome: undefined,
     detalhes: {
       page: normalizePath(asString(body.page)),
-      response: asString(body.response),
-      userAgent: request.headers.get("user-agent") ?? undefined
+      type: "HTTP_ERROR"
     }
   });
 
@@ -41,8 +40,8 @@ function normalizePath(value?: string) {
   if (!value) return undefined;
   try {
     const url = new URL(value, "http://localhost");
-    return `${url.pathname}${url.search}`;
+    return url.pathname;
   } catch {
-    return value;
+    return undefined;
   }
 }

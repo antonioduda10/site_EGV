@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { sanitizeRichRecord } from "@/lib/sanitize-rich-html";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
 import { PaginasForm } from "@/components/forms/paginas-form";
 import { requirePermission } from "@/lib/require-permission";
@@ -120,7 +121,7 @@ export default async function PaginasDashboard() {
                         <Badge tone={pagina.visivel ? "emerald" : "amber"}>{pagina.visivel ? "Visível" : "Oculta"}</Badge>
                       </td>
                       <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
-                        <PaginaActions pagina={pagina} />
+                        <PaginaActions pagina={sanitizeRichRecord(pagina)} />
                       </td>
                     </tr>
                   ))}

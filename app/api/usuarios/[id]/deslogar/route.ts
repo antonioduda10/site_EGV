@@ -9,7 +9,7 @@ import { logAuditoria } from "@/lib/audit";
 
 export async function POST(_: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session || session.invalidated || !session.user?.id) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 

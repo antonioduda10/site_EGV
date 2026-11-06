@@ -26,14 +26,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return createPublicMetadata({
       title: "Notícia não encontrada",
       description: "A notícia solicitada não foi encontrada.",
-      path: `/noticias/${params.slug}`
+      path: `/noticias/${encodeURIComponent(params.slug)}`
     });
   }
 
   return createPublicMetadata({
     title: noticia.titulo,
     description: noticia.resumo || stripHtmlToText(noticia.conteudo),
-    path: `/noticias/${params.slug}`,
+    path: `/noticias/${encodeURIComponent(params.slug)}`,
     image: noticia.imagemCapa ? toPublicUrl(noticia.imagemCapa) : null,
     type: "article"
   });

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const PUBLIC_SITE_URL = "https://escolagetuliovargas.com.br";
+
 const siteName = "Portal EGV";
 const schoolName = "Escola Municipal Getúlio Vargas";
 const defaultDescription = "Portal institucional da Escola Municipal Getúlio Vargas.";
@@ -22,15 +24,16 @@ export function createPublicMetadata({
   const safeDescription = description?.trim() || defaultDescription;
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
   const images = image ? [{ url: image, alt: title }] : undefined;
+  const canonical = path ? new URL(path, PUBLIC_SITE_URL).toString() : undefined;
 
   return {
     title: fullTitle,
     description: safeDescription,
-    alternates: path ? { canonical: path } : undefined,
+    alternates: canonical ? { canonical } : undefined,
     openGraph: {
       title: fullTitle,
       description: safeDescription,
-      url: path,
+      url: canonical,
       siteName: `${siteName} - ${schoolName}`,
       locale: "pt_BR",
       type,

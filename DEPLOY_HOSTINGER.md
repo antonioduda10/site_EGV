@@ -359,3 +359,30 @@ Para repetir o smoke test completo, execute `prepare`, depois o navegador, reini
 $env:PORTAL_SMOKE_BASE_URL='https://escolagetuliovargas.com.br'
 npm run deploy:ui-check
 ```
+
+## Sitemap, robots e metadados publicos
+
+`app/sitemap.ts` e `app/robots.ts` utilizam as convencoes nativas de metadados do Next.js 14, sem dependencias adicionais. Enderecos: **https://escolagetuliovargas.com.br/sitemap.xml** e **https://escolagetuliovargas.com.br/robots.txt**. A origem canonica unica esta em `lib/seo.ts`; `metadataBase`, canonical e Open Graph nao dependem do host recebido nem da origem de autenticacao local. As paginas dinamicas codificam slug/ID nos metadados e no sitemap.
+
+O sitemap inclui 12 rotas publicas fixas: inicio, noticias, eventos, documentos, galeria, fotos, videos, secretaria, contato, privacidade, cookies e termos. Tres consultas Prisma paralelas acrescentam noticias `PUBLICADO` com data permitida pelo helper `publicNewsWhere`, paginas institucionais `visivel = true` e eventos `PUBLICADO`. Somente slug/ID e datas de noticia sao selecionados; nao sao consultados usuarios, contatos ou dados escolares privados. Galerias exibem conteudo dinamico nas rotas existentes; nao existem paginas individuais de album/video para inventar no sitemap.
+
+`lastmod` usa a data de publicacao da noticia ou, na ausencia, sua data de cadastro. Nas demais URLs nao ha uma data persistida confiavel de modificacao da pagina inteira: o campo e omitido, sem usar a hora da requisicao ou a data futura de realizacao de um evento como atualizacao. O sitemap e dinamico, sem cache de publicacao: publicar, ocultar ou retirar conteudo reflete na proxima consulta, sem novo build. Falha do banco nao e convertida silenciosamente em um sitemap parcial.
+
+Nao entram login, recuperacao/autenticacao, dashboard, APIs, uploads/arquivos brutos, paginas invisiveis, noticias futuras/nao publicadas, eventos em rascunho, variantes de busca/query ou o alias com redirecionamento `/galeria/midias`. O robots libera `/`, bloqueia `/dashboard`, `/login`, `/recuperar` e `/api/`, mas permite explicitamente `/api/uploads/` para as imagens e arquivos publicos. Nao bloqueia `/_next/`, CSS, JavaScript ou `/uploads/`. Isso nao concede acesso a arquivos restritos: os controles de autenticacao/RBAC/download permanecem no servidor. `robots.txt` nao e mecanismo de autorizacao nem garantia de desindexacao.
+
+`noindex, nofollow` e aplicado somente pelos layouts de autenticacao e dashboard. O site publico nao herda essa regra. Os testes novos verificam consultas/filtros, datas, origem canonica, XML real, exclusao de rascunhos/paginas invisiveis e metadados publicos/privados em navegador com banco isolado. A solicitacao de indexacao e a decisao de indexar continuam sob controle do Google; depois de validar a publicacao, envie `sitemap.xml` na propriedade correspondente do Search Console.
+
+Validacao e deploy seguem o procedimento de atualizacao acima, com Node 24, backup anterior e recriacao somente do app. Nao ha migration, mudanca de segredo, usuario, upload ou configuracao do proxy/HTTPS nesta melhoria. Conferencia publica depois do deploy:
+
+```bash
+curl --fail --silent --show-error https://escolagetuliovargas.com.br/sitemap.xml
+curl --fail --silent --show-error https://escolagetuliovargas.com.br/robots.txt
+```
+
+Referencias: [sitemap no Next.js 14](https://nextjs.org/docs/14/app/api-reference/file-conventions/metadata/sitemap) e [robots no Next.js 14](https://nextjs.org/docs/14/app/api-reference/file-conventions/metadata/robots).
+
+Validacao local desta melhoria em 06/11/2026: linha de base com 304 testes; depois da implementacao, **311 testes Vitest e 33 E2E aprovados, zero reprovados**. `npm run validate` concluiu testes, coverage, lint, TypeScript e build; cobertura dos arquivos selecionados permanece em 92,43% de linhas/statements. Lint manteve os 23 avisos preexistentes de imagens e o build manteve o aviso de Browserslist. A compilacao confirmou `/sitemap.xml` dinamico e `/robots.txt` estatico. O E2E utilizou schema PostgreSQL e uploads temporarios, removidos ao final. Os registros desta rodada ficam em `test-results/seo-final` e `test-results/seo-browser-evidence`, fora do Git; a entrada temporaria de build adicionada automaticamente ao tsconfig foi retirada, sem alterar a configuracao original do projeto.
+
+Validacao publica apos o deploy da release `20261106114115-c7bbb5f19756`: ambos os endpoints responderam **200**, com XML valido e texto puro nos tipos corretos. O sitemap continha **22 URLs: 12 fixas, quatro noticias, tres paginas institucionais e tres eventos**, com quatro `lastmod` validos. O conjunto completo foi comparado por SHA-256 com uma consulta independente, somente de leitura, ao PostgreSQL: os conjuntos coincidiram, sem selecionar campos privados. Todas as 22 paginas responderam 200, com canonical e Open Graph no HTTPS sem www e sem meta/header noindex publico. CSS, JavaScript e imagem publica de upload foram lidos com sucesso; quatro redirecionamentos HTTP/www para sitemap e robots passaram. Login/recuperacao apresentaram noindex; painel anonimo continuou redirecionando para login, usuarios retornou 403 e o healthcheck Prisma respondeu 200.
+
+O backup anterior ao deploy ficou em `/var/backups/portal-egv/data/20261106T114309Z`, com checksums conferidos. IDs dos containers Traefik e PostgreSQL, volumes e portas foram preservados; app e banco saudaveis. A comparacao protegida dos ambientes anterior/atual confirmou que somente `PORTAL_IMAGE` mudou, sem exibir valores. Nenhuma credencial, registro real, arquivo enviado, configuracao de HTTPS ou servico de backup externo foi alterado nesta melhoria. A quantidade do sitemap e uma fotografia da verificacao; futuras publicacoes/ocultacoes alteram o total automaticamente.

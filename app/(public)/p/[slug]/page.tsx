@@ -19,14 +19,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return createPublicMetadata({
       title: "Página não encontrada",
       description: "A página institucional solicitada não foi encontrada.",
-      path: `/p/${params.slug}`
+      path: `/p/${encodeURIComponent(params.slug)}`
     });
   }
 
   return createPublicMetadata({
     title: pagina.titulo,
     description: stripHtmlToText(pagina.conteudo),
-    path: `/p/${params.slug}`
+    path: `/p/${encodeURIComponent(params.slug)}`
   });
 }
 

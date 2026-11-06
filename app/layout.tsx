@@ -8,13 +8,14 @@ import { PageviewTracker } from "@/components/pageview-tracker";
 import { db } from "@/lib/db";
 import { buildBrandThemeVariables } from "@/lib/theme";
 import { AuthSessionProvider } from "@/components/auth-session-provider";
+import { PUBLIC_SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 const baseMetadata = {
   title: "Portal EGV — Escola Municipal Getúlio Vargas",
   description: "Portal institucional da Escola Municipal Getúlio Vargas",
-  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000")
+  metadataBase: new URL(PUBLIC_SITE_URL)
 };
 
 const themeInitScript = `(() => {

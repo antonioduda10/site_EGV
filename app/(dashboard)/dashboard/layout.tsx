@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
+import type { Metadata } from "next";
 import { requireAuth } from "@/lib/require-auth";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { SessionWatchdog } from "@/components/dashboard/session-watchdog";
 import { DashboardErrorLogger } from "@/components/dashboard/error-logger";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   // Garante acesso autenticado ao painel.

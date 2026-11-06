@@ -16,14 +16,14 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     return createPublicMetadata({
       title: "Evento não encontrado",
       description: "O evento solicitado não foi encontrado.",
-      path: `/eventos/${params.id}`
+      path: `/eventos/${encodeURIComponent(params.id)}`
     });
   }
 
   return createPublicMetadata({
     title: evento.titulo,
     description: evento.descricao || stripHtmlToText(evento.conteudo),
-    path: `/eventos/${params.id}`,
+    path: `/eventos/${encodeURIComponent(params.id)}`,
     type: "article"
   });
 }

@@ -19,6 +19,7 @@ const baseLinks: DashboardLink[] = [
   { href: "/dashboard/paginas", label: "Páginas", permission: Permissions.PAGES_WRITE },
   { href: "/dashboard/secretaria", label: "Secretaria", permission: Permissions.PAGES_WRITE },
   { href: "/dashboard/banners", label: "Banners", permission: Permissions.BANNERS_WRITE },
+  { href: "/dashboard/avisos", label: "Avisos", permission: Permissions.ALERTS_WRITE },
   { href: "/dashboard/galeria/fotos", label: "Galeria - Fotos", permission: Permissions.MEDIA_WRITE },
   { href: "/dashboard/galeria/videos", label: "Galeria - Vídeos", permission: Permissions.VIDEOS_WRITE },
   { href: "/dashboard/contatos", label: "Contatos", permission: Permissions.CONTACTS_READ },

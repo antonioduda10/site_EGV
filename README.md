@@ -84,14 +84,15 @@ Documentacao: [relatorio](docs/aula12-seguranca/RELATORIO_SEGURANCA.md), [riscos
 ## Setup
 
 1. Copie o arquivo `.env.example` para `.env`.
+   - Defina uma senha exclusiva de desenvolvimento em `POSTGRES_PASSWORD` e use a mesma na URL local `DATABASE_URL`. Gere tambem um `NEXTAUTH_SECRET` exclusivo; nao copie credenciais de producao.
    - Se acessar de outros computadores na rede, ajuste `NEXTAUTH_URL` para o IP/host atual do servidor, por exemplo: `http://192.168.1.9:3000`.
 2. Suba o PostgreSQL:
    - `docker-compose up -d`
 3. Instale as dependências:
    - `npm install`
-4. Rode as migrations e o seed:
+4. Rode as migrations, sem seed automatico:
    - `npm run prisma:migrate`
-   - `npm run prisma:seed`
+   - Para criar dados demonstrativos, autorize o seed local explicitamente conforme a secao abaixo.
 5. Inicie o projeto:
    - `npm run dev`
 
@@ -127,13 +128,24 @@ O `docker-compose.yml` sobe um PostgreSQL 16 com:
 
 - Banco: `portal_egv`
 - Usuário: `postgres`
-- Senha: `postgres`
-- Porta local: `5433`
+- Credencial: configurada exclusivamente no `.env` privado, sem valor padrao no Compose.
+- Porta local: `127.0.0.1:5433`, sem exposicao do PostgreSQL na rede.
 
-## Credenciais iniciais do seed
+## Seed e credenciais de desenvolvimento
 
-- Email: `********************`
-- Senha: `***********`
+O seed e exclusivo do desenvolvimento. Ele recusa `NODE_ENV=production`, exige autorizacao explicita e confere se a URL corresponde ao container Docker local `egv-postgres`, incluindo host, porta, banco e usuario. Nao use tunel ou banco remoto para executar o seed.
+
+```powershell
+$env:EGV_ALLOW_DEV_SEED='1'
+npm run prisma:seed
+Remove-Item Env:EGV_ALLOW_DEV_SEED
+```
+
+A conta inicial e `admin-dev@example.invalid`, claramente separada das contas institucionais de producao. A senha e aleatoria, longa e salva somente em arquivo privado fora do projeto, no diretorio `PortalEGV/development` do perfil local. No Windows, fica em `%LOCALAPPDATA%\PortalEGV\development`, com ACL restrita; em Linux, em `~/.local/share/PortalEGV/development`. O seed informa apenas o caminho, nunca o valor. Consulte arquivos com `state: applied`; um arquivo `prepared` exige conferir se a operacao foi concluida.
+
+Reexecutar o seed **nao modifica senha, perfil ou status de um usuario existente**. Nao existe senha padrao compartilhada. Para auditar contas locais antigas, use `npm run dev:secure-users`; a correcao exige `npm run dev:secure-users -- --apply`, gera acessos privados e revoga somente sessoes locais das contas corrigidas. O detector e limitado aos padroes legados conhecidos, nao descobre uma senha arbitraria a partir do hash.
+
+Publicar codigo nao sincroniza bancos. O deploy de producao nao executa seed, reset, db push ou importacao local: utiliza migrations e volumes persistentes. Veja [AUDITORIA_CREDENCIAIS.md](AUDITORIA_CREDENCIAIS.md) e [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md).
 
 ## Comandos
 
@@ -148,8 +160,9 @@ O `docker-compose.yml` sobe um PostgreSQL 16 com:
 - `npm run validate` - executa testes, cobertura, lint, TypeScript e build, salvando os resultados
 - `npm run test:evidence` - gera tabela de casos e imagens de resumo a partir dos resultados aprovados
 - `npm run prisma:generate` - gera o Prisma Client
-- `npm run prisma:migrate` - executa migrations em desenvolvimento
-- `npm run prisma:seed` - popula dados iniciais
+- `npm run prisma:migrate` - executa migrations de desenvolvimento com `--skip-seed`
+- `npm run prisma:seed` - seed demonstrativo com autorizacao e isolamento local obrigatorios
+- `npm run dev:secure-users` - audita senhas legadas conhecidas somente no banco local validado
 
 ## Validação recomendada
 
@@ -160,6 +173,14 @@ Antes de entregar alterações importantes:
 - `npm run lint`
 - `npx tsc --noEmit --incremental false`
 - `npm run build`
+
+## Avisos Da Home
+
+Manutencao em `/dashboard/avisos`: criacao, edicao, imagem, link, ativacao, ordem, datas e animacao. A secao permanece oculta na home quando nao houver aviso ativo; varios ativos continuam aparecendo na grade existente. Configuracoes gerais nao editam mais avisos.
+
+A permissao **Gerenciar avisos** (`ALERTS_WRITE`) e independente de Config e controlada em `/dashboard/usuarios`, na pagina, menus e APIs. Nao ha alteracao de schema ou migration. Para preservar concessoes manuais locais anteriores, confira `npm run dev:enable-alerts` e aplique explicitamente `npm run dev:enable-alerts -- --apply`. Perfis administrativos mantem a heranca; o ajuste nao modifica senhas.
+
+Diagnostico, testes e compatibilidade: [docs/MODULO_AVISOS.md](docs/MODULO_AVISOS.md). A implementacao inicial foi realizada somente localmente. Publicacao autorizada, rastreabilidade do commit, backup online e rollback: [deploy/BLUEGREEN.md](deploy/BLUEGREEN.md).
 
 ## Uploads
 

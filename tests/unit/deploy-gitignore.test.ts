@@ -17,7 +17,8 @@ describe("Protecao dos arquivos operacionais no Git", () => {
       ".env", ".env.production", "environment.env", "deploy/r2.env", "private.key", "ssh/id_ed25519",
       "certificate.pem", "credentials.json", "tests/cookies.json", "tests/storage-state.json",
       "r2-restic-password", "database.dump", "backup.sql", "backup.sql.gz", "database.sqlite3",
-      "uploads/foto.png", "backups/private.txt", "secrets/private.txt", ".next-production-check/server.js"
+      "uploads/foto.png", "backups/private.txt", "secrets/private.txt", ".next-production-check/server.js",
+      "docs/evidencias/dados-privados.json"
     ];
     expect(ignored(paths)).toEqual([...paths].sort());
   });
@@ -26,7 +27,7 @@ describe("Protecao dos arquivos operacionais no Git", () => {
     expect(ignored([
       ".env.example", "deploy/production.env.example", "deploy/r2.env.example",
       "prisma/migrations/20260522005000_prepare_sugestao_contato_index/migration.sql",
-      "app/api/uploads/[...path]/route.ts", "deploy/r2-backup.py", "DEPLOY_HOSTINGER.md"
+      "app/api/uploads/[...path]/route.ts", "deploy/r2-backup.py", "DEPLOY_HOSTINGER.md", "docs/MODULO_AVISOS.md"
     ])).toEqual([]);
   });
 

@@ -29,6 +29,7 @@ const permissionSections = [
       Permissions.DOCS_WRITE,
       Permissions.PAGES_WRITE,
       Permissions.BANNERS_WRITE,
+      Permissions.ALERTS_WRITE,
       Permissions.CONFIG_WRITE,
       Permissions.CONTACTS_READ,
       Permissions.CONTACTS_WRITE
@@ -63,6 +64,7 @@ const permissionLabels: Record<string, string> = {
   DOCS_WRITE: "Gerenciar documentos",
   PAGES_WRITE: "Gerenciar páginas",
   BANNERS_WRITE: "Gerenciar banners",
+  ALERTS_WRITE: "Gerenciar avisos",
   CONFIG_WRITE: "Gerenciar configurações",
   MEDIA_WRITE: "Gerenciar fotos",
   VIDEOS_WRITE: "Gerenciar vídeos",

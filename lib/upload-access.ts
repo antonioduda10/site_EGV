@@ -70,13 +70,19 @@ export async function canReadUpload(target: string): Promise<boolean> {
     const rows = await db.midia.findMany({ where: { caminho: { endsWith: filename } }, select: { caminho: true } });
     if (rows.some((row) => sameUpload(row.caminho, target))) return true;
   }
+  const noticeImage = relative.startsWith("config/avisos/");
+  if (noticeImage || legacy) {
+    const authorized = await hasContentPermission(Permissions.ALERTS_WRITE);
+    if (authorized && noticeImage) return true;
+    const alerts = parseHomeAlerts(await getHomeAlertsJson());
+    if (alerts.some((alert) => (authorized || alert.ativo !== false) && sameUpload(alert.imagemUrl, target))) return true;
+    if (noticeImage) return false;
+  }
   if (folder === "config" || legacy) {
     const authorized = await hasContentPermission(Permissions.CONFIG_WRITE);
     if (authorized && !legacy) return true;
     const config = await db.configuracaoSite.findFirst({ select: { logoUrl: true, politicaPrivacidade: true, cookies: true, termos: true } });
     if (config && (sameUpload(config.logoUrl, target) || [config.politicaPrivacidade, config.cookies, config.termos].some((html) => richUsesUpload(html ?? "", target)))) return true;
-    const alerts = parseHomeAlerts(await getHomeAlertsJson());
-    if (alerts.some((alert) => (authorized || alert.ativo !== false) && sameUpload(alert.imagemUrl, target))) return true;
   }
   return false;
 }

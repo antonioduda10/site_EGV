@@ -1,5 +1,29 @@
 # Portal EGV na Hostinger
 
+## Preparacao da atualizacao de Avisos - 09/11/2026
+
+Na etapa inicial foi autorizada somente a preparacao blue/green e a inclusao pontual de
+`ALERTS_WRITE` nas tres contas revisadas. A concessao aditiva foi concluida sem
+alterar usuarios, senhas, perfis, status ou permissoes anteriores. A ativacao
+publica nao ocorreu durante aquela preparacao. Nao ha alteracao de schema ou migration.
+
+Para esta atualizacao, nao usar o `deploy:publish`/`deploy.sh` legado, pois recria
+a unica instancia e executa o servico de migrations. Procedimento, bloqueio de
+trafego, backup online, verificacoes e rollback: [deploy/BLUEGREEN.md](deploy/BLUEGREEN.md).
+As instrucoes anteriores abaixo documentam o fluxo instalado; nao significam
+autorizacao para efetuar a troca definitiva durante a preparacao. Posteriormente,
+o responsavel autorizou a ativacao, condicionada a commit/push anterior, imagem
+vinculada ao commit, novo backup online e validacao antes de aposentar o app antigo.
+
+O pacote `npm run deploy:package -- --commit SHA_COMPLETO` usa somente blobs do
+commit HEAD limpo. Um manifesto SHA-256 acompanha o codigo; a preparacao confere
+todos os arquivos e a imagem recebe a label OCI `org.opencontainers.image.revision`.
+Operacoes de ativacao/rollback/retirada ficam em `deploy/activate-bluegreen.py`.
+Os wrappers instalados passam a identificar a instancia ativa pelo marcador
+privado, mantem o backup online no timer existente e bloqueiam o deploy legado.
+Estado, backup exato e resultados reais da ativacao ficam root-only na VPS;
+nenhum dado ou ambiente privado acompanha o commit.
+
 ## Producao atual - 06/11/2026
 
 Endereco definitivo: **https://escolagetuliovargas.com.br**. O certificado Let's Encrypt cobre tambem `www.escolagetuliovargas.com.br`, com validade conferida ate **04/02/2027** e renovacao automatica configurada no Traefik existente. HTTP, www e o antigo IP HTTP redirecionam para o dominio principal, preservando caminhos e parametros. Cloudflare permanece em DNS only nesta etapa.
@@ -386,3 +410,13 @@ Validacao local desta melhoria em 06/11/2026: linha de base com 304 testes; depo
 Validacao publica apos o deploy da release `20261106114115-c7bbb5f19756`: ambos os endpoints responderam **200**, com XML valido e texto puro nos tipos corretos. O sitemap continha **22 URLs: 12 fixas, quatro noticias, tres paginas institucionais e tres eventos**, com quatro `lastmod` validos. O conjunto completo foi comparado por SHA-256 com uma consulta independente, somente de leitura, ao PostgreSQL: os conjuntos coincidiram, sem selecionar campos privados. Todas as 22 paginas responderam 200, com canonical e Open Graph no HTTPS sem www e sem meta/header noindex publico. CSS, JavaScript e imagem publica de upload foram lidos com sucesso; quatro redirecionamentos HTTP/www para sitemap e robots passaram. Login/recuperacao apresentaram noindex; painel anonimo continuou redirecionando para login, usuarios retornou 403 e o healthcheck Prisma respondeu 200.
 
 O backup anterior ao deploy ficou em `/var/backups/portal-egv/data/20261106T114309Z`, com checksums conferidos. IDs dos containers Traefik e PostgreSQL, volumes e portas foram preservados; app e banco saudaveis. A comparacao protegida dos ambientes anterior/atual confirmou que somente `PORTAL_IMAGE` mudou, sem exibir valores. Nenhuma credencial, registro real, arquivo enviado, configuracao de HTTPS ou servico de backup externo foi alterado nesta melhoria. A quantidade do sitemap e uma fotografia da verificacao; futuras publicacoes/ocultacoes alteram o total automaticamente.
+
+## Preservacao de senhas nas atualizacoes
+
+Auditoria de 08/11/2026: bancos local e VPS sao independentes. As senhas alteradas pelo painel de producao nao sao sincronizadas com desenvolvimento. O deploy normal nao executa seed, reset, db push ou restauracao: usa `migrate deploy` e preserva o volume PostgreSQL. Nao execute scripts de desenvolvimento ou importacao inicial como parte de atualizacoes.
+
+O seed local foi protegido por autorizacao explicita, validacao do container/host/porta/banco e bloqueio de ambiente de producao. Ele cria apenas uma conta ficticia ausente, com segredo aleatorio privado; nao atualiza contas existentes. Seed e ferramentas locais sao excluidos do pacote e do estagio Docker de migrations. O verificador de migrations agora recusa DML usual sobre Usuario em arquivos pendentes; alteracoes de dados de autenticacao exigem revisao separada.
+
+O detector de senhas legadas passou a verificar tambem o formato moderno de hash, sem mudar a autenticacao do Portal. A execucao corrigida, apenas em memoria na VPS, confirmou quatro contas ativas sem correspondencias conhecidas; nenhuma credencial foi modificada. Cinco contas e a credencial PostgreSQL foram corrigidas exclusivamente no computador local, com autorizacao para reiniciar somente o ambiente local. Nao houve novo deploy nesta auditoria.
+
+Restauracao manual de backup antigo pode reintroduzir hashes antigos e exige revisao/rotacao de contas; nao e uma publicacao de codigo. Historico Git nao foi reescrito e nao substitui rotacao de segredos que ja tenham sido publicados. Detalhes, testes e limites: [AUDITORIA_CREDENCIAIS.md](AUDITORIA_CREDENCIAIS.md).

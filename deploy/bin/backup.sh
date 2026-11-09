@@ -2,6 +2,9 @@
 set -euo pipefail
 umask 077
 root=${PORTAL_ROOT:-/opt/portal-egv}
+if test -f "$root/shared/active-bluegreen.json" || test -f "$root/shared/online-backup-release.json"; then
+  exec python3 "$root/bin/bluegreen_operations.py" backup
+fi
 base=/var/backups/portal-egv/data
 install -d -m 700 "$base"
 if test "${PORTAL_DEPLOY_LOCK_HELD:-0}" != 1; then

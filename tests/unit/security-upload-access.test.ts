@@ -46,3 +46,21 @@ it("SEC-ASSET arquivo legado orfao nao se torna publico nem por outra permissao"
   vi.mocked(getServerSession).mockResolvedValue(testSession);
   expect(await canReadUpload(target("orfao.png"))).toBe(false);
 });
+
+it("AVISOS-ASSET visitante recebe somente imagens vinculadas a avisos ativos", async () => {
+  dbMock.$queryRaw.mockResolvedValue([{ avisosHomeJson: JSON.stringify([
+    { titulo: "Publicado", descricao: "Teste", imagemUrl: "/api/uploads/config/avisos/ativo.png", ativo: true },
+    { titulo: "Oculto", descricao: "Teste", imagemUrl: "/api/uploads/config/avisos/oculto.png", ativo: false }
+  ]) }]);
+  expect(await canReadUpload(target("config/avisos/ativo.png"))).toBe(true);
+  expect(await canReadUpload(target("config/avisos/oculto.png"))).toBe(false);
+  expect(await canReadUpload(target("config/avisos/orfao.png"))).toBe(false);
+});
+
+it("AVISOS-ASSET somente Avisos permite previa; Config nao libera imagens ocultas", async () => {
+  vi.mocked(getServerSession).mockResolvedValue({ ...testSession, user: { ...testSession.user, permissions: ["CONFIG_WRITE"] } });
+  expect(await canReadUpload(target("config/avisos/oculto.png"))).toBe(false);
+  vi.mocked(getServerSession).mockResolvedValue({ ...testSession, user: { ...testSession.user, roles: [], permissions: ["ALERTS_WRITE"] } });
+  expect(await canReadUpload(target("config/avisos/oculto.png"))).toBe(true);
+  expect(await canReadUpload(target("config/logo.png"))).toBe(false);
+});

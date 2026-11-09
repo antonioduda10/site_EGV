@@ -6,12 +6,13 @@ import { sanitizeRichHtml } from "@/lib/sanitize-rich-html";
 import { hasContentPermission, contentHeaders } from "@/lib/content-access";
 import { parseHomeAlerts, parseHomeDisplaySettings, serializeHomeAlertsConfig } from "@/lib/home-alerts";
 import { getPublicTextsJson, savePublicTextsJson } from "@/lib/public-texts-config";
-import { getHomeAlertsJson, saveHomeAlertsJson } from "@/lib/home-alerts-config";
+import { getHomeAlertsJson } from "@/lib/home-alerts-config";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const config = await db.configuracaoSite.findFirst({
+    orderBy: { atualizadoEm: "desc" },
     select: {
       id: true,
       logoUrl: true,
@@ -32,7 +33,7 @@ export async function GET() {
     getPublicTextsJson(),
     getHomeAlertsJson()
   ]);
-  const canManage = await hasContentPermission(Permissions.CONFIG_WRITE);
+  const canManage = await hasContentPermission(Permissions.ALERTS_WRITE);
   const publicAlerts = serializeHomeAlertsConfig(parseHomeAlerts(avisosHomeJson).filter((alert) => alert.ativo !== false), parseHomeDisplaySettings(avisosHomeJson));
   return NextResponse.json(config ? {
     ...config,
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const existing = await db.configuracaoSite.findFirst({ select: { id: true } });
+  const existing = await db.configuracaoSite.findFirst({ select: { id: true }, orderBy: { atualizadoEm: "desc" } });
 
   const data = {
     logoUrl: body.logoUrl ?? null,
@@ -68,14 +69,16 @@ export async function POST(request: Request) {
   const config = existing
     ? await db.configuracaoSite.update({ where: { id: existing.id }, data })
     : await db.configuracaoSite.create({ data });
-  await Promise.all([
-    savePublicTextsJson(config.id, body.textosPublicosJson ?? null),
-    saveHomeAlertsJson(config.id, body.avisosHomeJson ?? null)
-  ]);
+  await savePublicTextsJson(config.id, body.textosPublicosJson ?? null);
+
+  // This endpoint no longer owns notices; ignore stale clients' copies of this JSON.
+  const avisosHomeJson = await getHomeAlertsJson();
+  const canManageAlerts = await hasContentPermission(Permissions.ALERTS_WRITE);
+  const publicAlerts = serializeHomeAlertsConfig(parseHomeAlerts(avisosHomeJson).filter((alert) => alert.ativo !== false), parseHomeDisplaySettings(avisosHomeJson));
 
   return NextResponse.json({
     ...config,
     textosPublicosJson: body.textosPublicosJson ?? null,
-    avisosHomeJson: body.avisosHomeJson ?? null
+    avisosHomeJson: canManageAlerts ? avisosHomeJson : publicAlerts
   });
 }

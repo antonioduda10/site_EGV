@@ -26,8 +26,10 @@ ENV DATABASE_URL=postgresql://build:build@127.0.0.1:1/build \
 RUN npx prisma generate && npm run build
 
 FROM dependencies AS migration
-COPY prisma ./prisma
+COPY prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma/migrations ./prisma/migrations
 COPY deploy/migration-check.cjs ./deploy/migration-check.cjs
+COPY deploy/migration-policy.cjs ./deploy/migration-policy.cjs
 COPY deploy/migration-compatibility.json ./deploy/migration-compatibility.json
 COPY deploy/verify-import.cjs ./deploy/verify-import.cjs
 COPY deploy/production-smoke.cjs deploy/check-production-users.cjs ./deploy/
@@ -35,6 +37,8 @@ RUN npx prisma generate
 CMD ["sh", "-c", "node deploy/migration-check.cjs && node node_modules/prisma/build/index.js migrate deploy"]
 
 FROM base AS runner
+ARG PORTAL_SOURCE_COMMIT=uncommitted
+LABEL org.opencontainers.image.revision=$PORTAL_SOURCE_COMMIT
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 \
     UPLOAD_DIR=/app/uploads ERROR_LOG_DIR=/app/logs NODE_OPTIONS=--max-old-space-size=768
 RUN groupadd --gid 1001 portal && useradd --uid 1001 --gid portal --no-create-home portal \

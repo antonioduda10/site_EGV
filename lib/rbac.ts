@@ -20,6 +20,7 @@ const rolePermissions: Record<RoleName, Permission[]> = {
     Permissions.EVENTS_WRITE,
     Permissions.PAGES_WRITE,
     Permissions.BANNERS_WRITE,
+    Permissions.ALERTS_WRITE,
     Permissions.CONFIG_WRITE,
     Permissions.DOCS_WRITE,
     Permissions.CONTACTS_READ,
@@ -31,6 +32,7 @@ const rolePermissions: Record<RoleName, Permission[]> = {
     Permissions.EVENTS_WRITE,
     Permissions.PAGES_WRITE,
     Permissions.BANNERS_WRITE,
+    Permissions.ALERTS_WRITE,
     Permissions.CONFIG_WRITE,
     Permissions.CONTACTS_READ,
     Permissions.CONTACTS_WRITE

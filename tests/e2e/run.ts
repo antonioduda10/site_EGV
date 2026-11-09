@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { hashPassword } from "../../lib/password";
 import bcrypt from "bcryptjs";
+import { requireLocalDatabase } from "../../tools/development/local-database";
 
 function execute(script: string, args: string[], env: NodeJS.ProcessEnv) {
   return new Promise<number>((resolve, reject) => {
@@ -20,6 +21,7 @@ function execute(script: string, args: string[], env: NodeJS.ProcessEnv) {
 async function main() {
   loadEnvConfig(process.cwd());
   if (!process.env.DATABASE_URL) throw new Error("Configure DATABASE_URL para um PostgreSQL local com permissao de criar schemas.");
+  requireLocalDatabase(process.env.DATABASE_URL);
   const sourceUrl = new URL(process.env.DATABASE_URL);
   if (!["postgres:", "postgresql:"].includes(sourceUrl.protocol)) throw new Error("Os testes E2E exigem PostgreSQL.");
   const schema = `egv_e2e_${randomUUID().replace(/-/g, "")}`;
@@ -32,7 +34,7 @@ async function main() {
   const password = randomBytes(24).toString("hex");
   const env: NodeJS.ProcessEnv = {
     ...process.env, DATABASE_URL: isolatedUrl.toString(),
-    NEXTAUTH_URL: "http://127.0.0.1:3100", NEXTAUTH_SECRET: randomBytes(32).toString("hex"),
+    NEXTAUTH_URL: process.env.EGV_E2E_AUTH_ALIAS === "1" ? "http://localhost:3100" : "http://127.0.0.1:3100", NEXTAUTH_SECRET: randomBytes(32).toString("hex"),
     UPLOAD_DIR: temporaryFiles, ERROR_LOG_DIR: path.join(temporaryFiles, "logs"),
     E2E_ISOLATED: "1", E2E_EMAIL: "admin-teste@example.invalid", E2E_PASSWORD: password
   };
@@ -56,6 +58,10 @@ async function main() {
       { href: "/contato", label: "Contato" }
     ];
     await isolated.configuracaoSite.create({ data: {
+      avisosHomeJson: JSON.stringify([
+        { titulo: "Comunicado legado de teste", descricao: "Aviso ficticio anterior ao modulo proprio.", ativo: true, href: "/eventos", imagemUrl: "" },
+        { titulo: "Comunicado oculto de teste", descricao: "Registro ficticio ainda oculto.", ativo: false, href: "", imagemUrl: "" }
+      ]),
       menuJson: JSON.stringify(links),
       botaoHistoriaLink: "/p/escola-teste",
       rodapeJson: JSON.stringify({

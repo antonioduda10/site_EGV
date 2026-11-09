@@ -17,6 +17,8 @@
     "deploy:package": "tsx deploy/package.ts",
     "deploy:publish": "tsx deploy/publish.ts",
     "deploy:ui-check": "tsx deploy/ui-smoke.ts",
+    "dev:secure-users": "tsx tools/development/secure-users.ts",
+    "dev:enable-alerts": "tsx tools/development/enable-alerts.ts",
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start -H 0.0.0.0",
@@ -28,7 +30,7 @@
     "test:evidence": "tsx tests/evidence.ts",
     "validate": "tsx tests/validate.ts",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate": "prisma migrate dev --skip-seed",
     "prisma:seed": "prisma db seed"
   },
   "prisma": {

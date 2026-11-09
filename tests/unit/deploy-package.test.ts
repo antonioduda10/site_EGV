@@ -3,6 +3,7 @@ import { safeDeploymentPath } from "@/deploy/package-policy";
 
 describe("Pacote de producao sem arquivos privados", () => {
   it.each([
+    "prisma/seed.ts", "tools/development/secure-users.ts", "tools/development/seed-admin.ts",
     "deploy/r2.env", "deploy/environment.env", "app/.env.production", "deploy/r2-restic-password",
     "public/private.pem", "deploy/credentials.json", "deploy/cookies.json", "deploy/storage-state.json",
     "public/database.dump", "app/backup.sql", "app/node_modules/a.js", "../outside.ts", "/absolute.ts",

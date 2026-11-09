@@ -3,12 +3,13 @@ import { requirePermission } from "@/lib/require-permission";
 import { Permissions } from "@/lib/permissions";
 import { uploadFile } from "@/lib/uploads";
 import { withApiErrors } from "@/lib/api-errors";
+import { isHomeAlertsSameOrigin } from "@/lib/home-alerts-validation";
 
 const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
 export const POST = withApiErrors(async (request: Request) => {
-  const { allowed } = await requirePermission(Permissions.CONFIG_WRITE);
-  if (!allowed) {
+  const { allowed } = await requirePermission(Permissions.ALERTS_WRITE);
+  if (!allowed || !isHomeAlertsSameOrigin(request)) {
     return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
   }
 
@@ -25,4 +26,4 @@ export const POST = withApiErrors(async (request: Request) => {
 
   const url = await uploadFile(arquivo, "config/avisos");
   return NextResponse.json({ url }, { status: 201 });
-}, "uploads.config");
+}, "uploads.avisos");

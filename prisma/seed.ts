@@ -1,9 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import { hashPassword } from "../lib/password";
+import { requireDevelopmentSeed } from "../tools/development/local-database";
+import { ensureDevelopmentAdmin } from "../tools/development/seed-admin";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ log: [] });
 
 async function main() {
+  requireDevelopmentSeed();
   const perfis = [
     "Admin",
     "Direção",
@@ -23,27 +25,8 @@ async function main() {
     });
   }
 
-  const adminEmail = "admin@egv.edu.br";
-  const admin = await prisma.usuario.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: {
-      nome: "Admin EGV",
-      email: adminEmail,
-      senhaHash: await hashPassword("Admin@123"),
-      status: "ATIVO",
-      superAdmin: true
-    }
-  });
-
-  const perfilAdmin = await prisma.perfil.findUnique({ where: { nome: "Admin" } });
-  if (perfilAdmin) {
-    await prisma.usuarioPerfil.upsert({
-      where: { usuarioId_perfilId: { usuarioId: admin.id, perfilId: perfilAdmin.id } },
-      update: {},
-      create: { usuarioId: admin.id, perfilId: perfilAdmin.id }
-    });
-  }
+  const admin = await ensureDevelopmentAdmin(prisma);
+  if (admin.created) console.log(`Credenciais somente de desenvolvimento no arquivo privado: ${admin.credentialsFile}`);
 
   const noticia = await prisma.noticia.upsert({
     where: { slug: "bem-vindos-portal-egv" },
@@ -197,8 +180,8 @@ async function main() {
 }
 
 main()
-  .catch((error) => {
-    console.error(error);
+  .catch(() => {
+    console.error("Seed local nao concluido. Verifique a autorizacao explicita e o destino local; detalhes de conexao nao sao exibidos.");
     process.exit(1);
   })
   .finally(async () => {

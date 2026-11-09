@@ -1,10 +1,16 @@
 export type HomeAlert = {
+  id?: string;
   titulo: string;
   descricao: string;
   href?: string;
   imagemUrl?: string;
   ativo?: boolean;
+  criadoEm?: string;
+  atualizadoEm?: string;
 };
+
+export type ManagedHomeAlert = HomeAlert & { id: string };
+export type HomeAlertsConfig = { alerts: ManagedHomeAlert[]; settings: HomeDisplaySettings };
 
 export type HomeAlertAnimationSpeed = "slow" | "normal" | "fast";
 
@@ -56,6 +62,17 @@ export function serializeHomeAlertsConfig(alerts: unknown, settings: unknown) {
   });
 }
 
+export function parseManagedHomeAlerts(value?: string | null): ManagedHomeAlert[] {
+  const used = new Set<string>();
+  return parseHomeAlerts(value).map((alert, index) => {
+    let id = alert.id || `legacy-${index + 1}`;
+    let suffix = 1;
+    while (used.has(id)) id = `legacy-${index + 1}-${suffix++}`;
+    used.add(id);
+    return { ...alert, id };
+  });
+}
+
 export function cleanHomeAlerts(alerts: unknown): HomeAlert[] {
   if (!Array.isArray(alerts)) return defaultHomeAlerts;
 
@@ -71,14 +88,21 @@ export function cleanHomeAlerts(alerts: unknown): HomeAlert[] {
       if (!titulo && !descricao) return null;
 
       return {
+        ...(typeof candidate.id === "string" && /^[a-zA-Z0-9-]{1,100}$/.test(candidate.id) ? { id: candidate.id } : {}),
         titulo,
         descricao,
         href,
         imagemUrl,
-        ativo: candidate.ativo !== false
+        ativo: candidate.ativo !== false,
+        ...(validDate(candidate.criadoEm) ? { criadoEm: candidate.criadoEm } : {}),
+        ...(validDate(candidate.atualizadoEm) ? { atualizadoEm: candidate.atualizadoEm } : {})
       };
     })
     .filter((item): item is HomeAlert => item !== null);
+}
+
+function validDate(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value) && Number.isFinite(Date.parse(value));
 }
 
 export function cleanHomeDisplaySettings(settings: unknown): HomeDisplaySettings {

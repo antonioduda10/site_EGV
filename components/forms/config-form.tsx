@@ -2,16 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { defaultPublicTexts, parsePublicTexts, type PublicTexts } from "@/lib/public-texts";
-import {
-  defaultHomeAlerts,
-  defaultHomeDisplaySettings,
-  parseHomeAlerts,
-  parseHomeDisplaySettings,
-  serializeHomeAlertsConfig,
-  type HomeAlert,
-  type HomeAlertAnimationSpeed,
-  type HomeDisplaySettings
-} from "@/lib/home-alerts";
 import { toPublicUrl } from "@/lib/uploads-url";
 
 type MenuLink = { href: string; label: string; newTab?: boolean };
@@ -49,8 +39,6 @@ type Config = {
   acessoRapido: AcessoRapidoItem[];
   rodape: RodapeLinks;
   publicTexts: PublicTexts;
-  homeAlerts: HomeAlert[];
-  homeDisplaySettings: HomeDisplaySettings;
 };
 
 const defaultMenuLinks: MenuLink[] = [
@@ -128,9 +116,7 @@ const emptyConfig: Config = {
   menuLinks: defaultMenuLinks,
   acessoRapido: defaultAcessoRapido,
   rodape: defaultRodape,
-  publicTexts: defaultPublicTexts,
-  homeAlerts: defaultHomeAlerts,
-  homeDisplaySettings: defaultHomeDisplaySettings
+  publicTexts: defaultPublicTexts
 };
 
 const sectionClass =
@@ -164,8 +150,6 @@ export function ConfigForm() {
   const [statusKind, setStatusKind] = useState<"success" | "error" | null>(null);
   const [logoUploadStatus, setLogoUploadStatus] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [homeAlertUploadStatus, setHomeAlertUploadStatus] = useState<Record<number, string>>({});
-  const [uploadingHomeAlertIndex, setUploadingHomeAlertIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [config, setConfig] = useState<Config>(emptyConfig);
 
@@ -177,8 +161,6 @@ export function ConfigForm() {
         const rodape = parseRodape(data?.rodapeJson, emptyConfig.rodape);
         const acessoRapido = parseArray<AcessoRapidoItem>(data?.acessoRapidoJson, emptyConfig.acessoRapido);
         const publicTexts = parsePublicTexts(data?.textosPublicosJson);
-        const homeAlerts = parseHomeAlerts(data?.avisosHomeJson);
-        const homeDisplaySettings = parseHomeDisplaySettings(data?.avisosHomeJson);
         setConfig({
           logoUrl: data?.logoUrl ?? "",
           corPrimaria: data?.corPrimaria ?? "",
@@ -191,9 +173,7 @@ export function ConfigForm() {
           menuLinks,
           acessoRapido,
           rodape,
-          publicTexts,
-          homeAlerts,
-          homeDisplaySettings
+          publicTexts
         });
       })
       .catch(() => null);
@@ -285,31 +265,6 @@ export function ConfigForm() {
   const removeAcessoRapido = (index: number) =>
     setConfig({ ...config, acessoRapido: config.acessoRapido.filter((_, i) => i !== index) });
 
-  const updateHomeAlert = (index: number, field: keyof HomeAlert, value: string | boolean) => {
-    const next = [...config.homeAlerts];
-    next[index] = { ...next[index], [field]: value };
-    setConfig({ ...config, homeAlerts: next });
-  };
-
-  const addHomeAlert = () =>
-    setConfig({
-      ...config,
-      homeAlerts: [...config.homeAlerts, { titulo: "", descricao: "", href: "", imagemUrl: "", ativo: true }]
-    });
-
-  const removeHomeAlert = (index: number) =>
-    setConfig({ ...config, homeAlerts: config.homeAlerts.filter((_, i) => i !== index) });
-
-  const updateHomeDisplaySettings = <K extends keyof HomeDisplaySettings>(field: K, value: HomeDisplaySettings[K]) => {
-    setConfig({
-      ...config,
-      homeDisplaySettings: {
-        ...config.homeDisplaySettings,
-        [field]: value
-      }
-    });
-  };
-
   const updatePublicText = (section: keyof PublicTexts, field: string, value: string) => {
     setConfig((prev) => ({
       ...prev,
@@ -351,45 +306,6 @@ export function ConfigForm() {
       setLogoUploadStatus("Erro ao enviar logo.");
     } finally {
       setUploadingLogo(false);
-      event.target.value = "";
-    }
-  };
-
-  const handleHomeAlertImageUpload = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const arquivo = event.target.files?.[0];
-    if (!arquivo) return;
-
-    setUploadingHomeAlertIndex(index);
-    setHomeAlertUploadStatus((prev) => ({ ...prev, [index]: "" }));
-
-    try {
-      const formData = new FormData();
-      formData.append("arquivo", arquivo);
-
-      const response = await fetch("/api/config/avisos/upload", {
-        method: "POST",
-        body: formData
-      });
-
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data?.url) {
-        setHomeAlertUploadStatus((prev) => ({ ...prev, [index]: data?.error ?? "Erro ao enviar imagem." }));
-        return;
-      }
-
-      setConfig((prev) => {
-        const next = [...prev.homeAlerts];
-        next[index] = { ...next[index], imagemUrl: data.url };
-        return { ...prev, homeAlerts: next };
-      });
-      setHomeAlertUploadStatus((prev) => ({
-        ...prev,
-        [index]: "Imagem enviada. Clique em Salvar para publicar no site."
-      }));
-    } catch {
-      setHomeAlertUploadStatus((prev) => ({ ...prev, [index]: "Erro ao enviar imagem." }));
-    } finally {
-      setUploadingHomeAlertIndex(null);
       event.target.value = "";
     }
   };
@@ -464,8 +380,7 @@ export function ConfigForm() {
       menuJson: cleanedMenu.length ? JSON.stringify(cleanedMenu) : null,
       acessoRapidoJson: cleanedAcessoRapido.length ? JSON.stringify(cleanedAcessoRapido) : null,
       rodapeJson: JSON.stringify(cleanedRodape),
-      textosPublicosJson: JSON.stringify(config.publicTexts),
-      avisosHomeJson: serializeHomeAlertsConfig(config.homeAlerts, config.homeDisplaySettings)
+      textosPublicosJson: JSON.stringify(config.publicTexts)
     };
 
     setSaving(true);
@@ -724,150 +639,6 @@ export function ConfigForm() {
           />
           Abrir em nova aba
         </label>
-      </section>
-
-      <section className={sectionClass}>
-        <div className={sectionHeaderClass}>
-          <p className={eyebrowClass}>Comunicados da home</p>
-          <h2 className={sectionTitleClass}>Avisos importantes</h2>
-          <p className={sectionDescriptionClass}>
-            Cadastre mensagens curtas para destacar na página inicial, como matrículas, reuniões, prazos ou comunicados urgentes.
-          </p>
-        </div>
-        <div className="mt-4 space-y-3">
-          <div className="max-w-2xl rounded-2xl border border-amber-100 bg-amber-50/60 p-4 dark:border-amber-900/60 dark:bg-amber-950/20">
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Animação dos avisos</h3>
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                  Controle o movimento suave do bloco exibido na página inicial.
-                </p>
-              </div>
-              <label className={checkboxLabelClass}>
-                <input
-                  type="checkbox"
-                  checked={config.homeDisplaySettings.alertAnimationEnabled}
-                  onChange={(event) => updateHomeDisplaySettings("alertAnimationEnabled", event.target.checked)}
-                />
-                Ativar animação discreta
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Velocidade da animação</span>
-                <select
-                  className={inputClass}
-                  value={config.homeDisplaySettings.alertAnimationSpeed}
-                  disabled={!config.homeDisplaySettings.alertAnimationEnabled}
-                  onChange={(event) =>
-                    updateHomeDisplaySettings("alertAnimationSpeed", event.target.value as HomeAlertAnimationSpeed)
-                  }
-                >
-                  <option value="slow">Lenta</option>
-                  <option value="normal">Moderada</option>
-                  <option value="fast">Mais chamativa</option>
-                </select>
-              </label>
-            </div>
-          </div>
-
-          {config.homeAlerts.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-300">
-              Nenhum aviso cadastrado. A home ocultará essa seção quando não houver aviso ativo.
-            </div>
-          ) : (
-            config.homeAlerts.map((item, index) => (
-              <div key={`aviso-home-${index}`} className={`${rowClass} grid gap-3 lg:grid-cols-[1fr_1fr_auto]`}>
-                <input
-                  className={inputClass}
-                  placeholder="Título do aviso"
-                  value={item.titulo}
-                  onChange={(event) => updateHomeAlert(index, "titulo", event.target.value)}
-                />
-                <input
-                  className={inputClass}
-                  placeholder="Link opcional (ex: /noticias)"
-                  value={item.href ?? ""}
-                  onChange={(event) => updateHomeAlert(index, "href", event.target.value)}
-                />
-                <label className={`${checkboxLabelClass} lg:justify-end`}>
-                  <input
-                    type="checkbox"
-                    checked={item.ativo !== false}
-                    onChange={(event) => updateHomeAlert(index, "ativo", event.target.checked)}
-                  />
-                  Exibir aviso
-                </label>
-                <textarea
-                  className={`${compactTextareaClass} lg:col-span-2`}
-                  placeholder="Descrição curta"
-                  rows={3}
-                  value={item.descricao}
-                  onChange={(event) => updateHomeAlert(index, "descricao", event.target.value)}
-                />
-                <button type="button" className={`${dangerButtonClass} lg:row-start-2`} onClick={() => removeHomeAlert(index)}>
-                  Remover
-                </button>
-                <div className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40 lg:col-span-3">
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <div className="flex h-24 w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white text-center text-xs font-semibold text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:w-36">
-                      {item.imagemUrl ? (
-                        <img
-                          src={toPublicUrl(item.imagemUrl)}
-                          alt="Pré-visualização do aviso"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span className="px-3">Sem imagem</span>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Imagem opcional do aviso
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        disabled={uploadingHomeAlertIndex === index}
-                        onChange={(event) => handleHomeAlertImageUpload(index, event)}
-                        className={`${inputClass} file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900 dark:file:text-amber-200`}
-                      />
-                      <input
-                        className={inputClass}
-                        placeholder="URL manual da imagem (opcional)"
-                        value={item.imagemUrl ?? ""}
-                        onChange={(event) => updateHomeAlert(index, "imagemUrl", event.target.value)}
-                      />
-                      <div className="flex flex-wrap items-center gap-2">
-                        {uploadingHomeAlertIndex === index && (
-                          <span className="text-xs font-medium text-brand-700 dark:text-brand-300">Enviando imagem...</span>
-                        )}
-                        {homeAlertUploadStatus[index] && (
-                          <span className="text-xs text-slate-600 dark:text-slate-300">{homeAlertUploadStatus[index]}</span>
-                        )}
-                        {item.imagemUrl && (
-                          <button
-                            type="button"
-                            className={`${subtleButtonClass} px-0 hover:bg-transparent`}
-                            onClick={() => updateHomeAlert(index, "imagemUrl", "")}
-                          >
-                            Remover imagem
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-          <div className={actionGroupClass}>
-            <button type="button" className={secondaryButtonClass} onClick={addHomeAlert}>
-              + Adicionar aviso
-            </button>
-            <button type="button" className={subtleButtonClass} onClick={() => setConfig({ ...config, homeAlerts: defaultHomeAlerts })}>
-              Limpar avisos
-            </button>
-          </div>
-        </div>
       </section>
 
       <section className={sectionClass}>

@@ -196,7 +196,7 @@ export default async function HomePage() {
                     <p className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800 dark:bg-amber-900/50 dark:text-amber-100">
                       Destaque
                     </p>
-                    <h3 className="mt-2 break-words font-semibold text-slate-950 dark:text-white">{aviso.titulo}</h3>
+                    {aviso.titulo && <h3 className="mt-2 break-words font-semibold text-slate-950 dark:text-white">{aviso.titulo}</h3>}
                     {aviso.descricao && <p className="mt-2 break-words text-sm leading-6 text-slate-600 dark:text-slate-300">{aviso.descricao}</p>}
                     {(href || imagem) && (
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -206,14 +206,14 @@ export default async function HomePage() {
                               href={href}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex min-h-9 items-center rounded-xl bg-amber-600 px-3 text-xs font-semibold text-white transition hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 dark:focus-visible:ring-offset-slate-900"
+                              className="inline-flex min-h-9 items-center rounded-xl bg-amber-700 px-3 text-xs font-semibold text-white transition hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 dark:focus-visible:ring-offset-slate-900"
                             >
                               Ver detalhes
                             </a>
                           ) : (
                             <Link
                               href={href}
-                              className="inline-flex min-h-9 items-center rounded-xl bg-amber-600 px-3 text-xs font-semibold text-white transition hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 dark:focus-visible:ring-offset-slate-900"
+                              className="inline-flex min-h-9 items-center rounded-xl bg-amber-700 px-3 text-xs font-semibold text-white transition hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 dark:focus-visible:ring-offset-slate-900"
                             >
                               Ver detalhes
                             </Link>

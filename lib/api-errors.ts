@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { logErrorEvent } from "./error-log";
 import { UploadValidationError } from "./upload-policy";
 import { UploadPathError } from "./upload-path";
+import { HomeAlertsError } from "./home-alerts-config";
 
 export function withApiErrors<Args extends unknown[]>(handler: (...args: Args) => Promise<Response>, action: string) {
   return async (...args: Args): Promise<Response> => {
@@ -11,7 +12,7 @@ export function withApiErrors<Args extends unknown[]>(handler: (...args: Args) =
     } catch (error) {
       let status = 500;
       let message = "Não foi possível concluir a operação. Tente novamente.";
-      if (error instanceof UploadValidationError || error instanceof UploadPathError) {
+      if (error instanceof UploadValidationError || error instanceof UploadPathError || error instanceof HomeAlertsError) {
         status = error.status;
         message = error.message;
       } else if (error instanceof SyntaxError) {

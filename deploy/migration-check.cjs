@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { PrismaClient } = require("@prisma/client");
+const { writesUserData } = require("./migration-policy.cjs");
 const db = new PrismaClient({ log: [] });
 class MigrationSafetyError extends Error {}
 
@@ -27,6 +28,7 @@ async function main() {
       if (!row.finished_at || (row.checksum !== checksum && !equivalentLineEndings && !approved)) throw new MigrationSafetyError("Migration history differs from source; deployment stopped.");
       if (approved) console.log(`Reviewed historical compatibility exception: ${name}; original database history preserved.`);
     } else {
+      if (writesUserData(sql)) throw new MigrationSafetyError("Automatic migrations must not write user records. Authentication data changes require separate manual review.");
       pending++;
       if (!pristine && /\b(?:DROP\s+(?:TABLE|COLUMN|TYPE)|TRUNCATE|DELETE\s+FROM)\b/i.test(sql)) throw new MigrationSafetyError("Pending destructive migration requires manual review and a verified backup.");
     }

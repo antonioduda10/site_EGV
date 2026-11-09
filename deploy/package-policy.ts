@@ -1,4 +1,5 @@
 export function safeDeploymentPath(relative: string) {
+  if (relative === "prisma/seed.ts" || relative.startsWith("tools/development/")) return false;
   const parts = relative.split("/");
   if (!relative || relative.includes("\\") || relative.startsWith("/")
     || parts.some((part) => !part || part === "." || part === ".."

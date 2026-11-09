@@ -57,6 +57,7 @@ pg_dump*.sql
 
 # Documentação interna / arquivos de projeto
 /docs/*
+!/docs/MODULO_AVISOS.md
 AGENTS.md
 portal_egv.backup
 
@@ -75,6 +76,7 @@ playwright-report/
 entrega-segura/
 *.tsbuildinfo
 deploy-artifacts/
+/deploy-source.json
 
 # OS
 .DS_Store

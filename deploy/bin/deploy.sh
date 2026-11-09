@@ -8,6 +8,10 @@ release=$(basename "$next")
 [[ "$release" =~ ^[0-9]{14}-[a-f0-9]{12}$ ]] || exit 1
 exec 8>/var/lock/portal-egv-deploy.lock
 flock -n 8 || { echo 'Another deployment is active.' >&2; exit 1; }
+if test -f "$root/shared/active-bluegreen.json" || test -f "$root/shared/online-backup-release.json"; then
+  echo 'Legacy replacement is disabled. Use the committed-source blue/green procedure; no migration was run.' >&2
+  exit 1
+fi
 previous=$(readlink -f "$root/current")
 previous_image=$(python3 -c 'import pathlib; p=pathlib.Path("/opt/portal-egv/shared/.env"); print(next(x.split("=",1)[1] for x in p.read_text().splitlines() if x.startswith("PORTAL_IMAGE=")))')
 export PORTAL_IMAGE="portal-egv:$release"

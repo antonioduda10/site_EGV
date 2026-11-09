@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 from bluegreen_policy import AUTH_KEYS, RELEASE
-from bluegreen_runtime import operation_target, validate_active
+from bluegreen_runtime import operation_target, status_command, validate_active
 
 
 ROOT = pathlib.Path("/opt/portal-egv")
@@ -52,7 +52,7 @@ def main():
         if service == "all":
             if args != ["ps"]:
                 raise ValueError("Use ps app or ps db for filtered output")
-            command = ["docker", "ps", "-a", "--filter", "id=" + active["candidateID"], "--filter", "name=^/portal-egv-db-1$", "--format", "table {{.Names}}\t{{.Status}}\t{{.Ports}}"]
+            command = status_command(active["candidateID"], inspect("portal-egv-db-1", ".Id"))
         else:
             environment["PORTAL_CANDIDATE_IMAGE"] = active["imageID"]
             command = ["docker", "compose", "--env-file", str(ROOT / "shared/.env"), "-f", active["composePath"], *mapped]

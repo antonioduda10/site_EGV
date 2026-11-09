@@ -11,6 +11,13 @@ from bluegreen_policy import RELEASE, candidate_name
 COMMIT = re.compile(r"[a-f0-9]{40}\Z")
 
 
+def status_command(application_id, database_id):
+    if not all(re.fullmatch(r"[a-f0-9]{64}", value) for value in (application_id, database_id)):
+        raise ValueError("Invalid container identity for status")
+    return ["docker", "ps", "-a", "--filter", "id=" + application_id,
+            "--filter", "id=" + database_id, "--format", "table {{.Names}}\t{{.Status}}\t{{.Ports}}"]
+
+
 def verify_source(directory, commit):
     root = pathlib.Path(directory)
     if not COMMIT.fullmatch(commit) or root.is_symlink():

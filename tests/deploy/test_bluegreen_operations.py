@@ -7,7 +7,7 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "deploy"))
-from bluegreen_runtime import operation_target, validate_active, verify_source
+from bluegreen_runtime import operation_target, status_command, validate_active, verify_source
 
 
 RELEASE = "20261109170000-012345abcdef"
@@ -15,6 +15,13 @@ COMMIT = "1" * 40
 
 
 class BlueGreenOperationsTests(unittest.TestCase):
+    def test_status_uses_two_identity_filters_so_app_and_database_are_both_listed(self):
+        command = status_command("1" * 64, "2" * 64)
+        self.assertEqual([command[index + 1] for index, value in enumerate(command) if value == "--filter"], ["id=" + "1" * 64, "id=" + "2" * 64])
+        self.assertFalse(any(value.startswith("name=") for value in command))
+        with self.assertRaises(ValueError):
+            status_command("unexpected", "2" * 64)
+
     def marker(self):
         return {"release": RELEASE, "commit": COMMIT, "candidate": "portal-egv-candidate-" + RELEASE,
                 "candidateID": "2" * 64, "imageID": "sha256:" + "3" * 64,

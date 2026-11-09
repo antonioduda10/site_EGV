@@ -248,7 +248,12 @@ revisado/pushado e backup online imediatamente anterior a abertura do bloqueio.
    o container anterior, sem excluir container, imagem, codigo ou volume. Nova
    falha critica na verificacao retorna a versao anterior sem restaurar banco.
 
-Rollback explicito: `activate-bluegreen.py rollback ID --commit SHA --confirm`.
+Rollback explicito instalado: `python3 /opt/portal-egv/bin/activate-bluegreen.py rollback ID --commit SHA --confirm`.
+Sua verificacao exige somente rotas que ja existiam na versao anterior; nao exige
+`/dashboard/avisos` de uma release anterior ao modulo. O commit da rotina
+operacional pode receber uma correcao independente do commit imutavel da imagem
+da aplicacao. Nesses casos, registrar ambos separadamente, verificar os bytes dos
+scripts instalados e nunca mudar o manifesto ou a revision da imagem ja compilada.
 Nunca executar o publicador legado sobre uma instalacao blue/green ativa; ele
 falha fechado antes de qualquer migration ou substituicao. Uma proxima atualizacao
 blue/green exige novamente revisar slots/portas/instancias e o backup, nao apagar

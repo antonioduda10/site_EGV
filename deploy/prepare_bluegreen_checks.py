@@ -40,13 +40,16 @@ def wait_for(test, seconds):
     raise ValueError("Timed out waiting for a verified routing state")
 
 
-def public_checks():
+def public_checks(include_new_module=True):
     result = {}
     for path in ("/", "/noticias", "/eventos", "/documentos", "/galeria", "/galeria/fotos", "/galeria/videos", "/secretaria", "/contato", "/login", "/sitemap.xml", "/robots.txt"):
         result[path] = request_status("https://" + DOMAIN + path)
         if result[path] != 200:
             raise ValueError("Public page failed validation")
-    for path in ("/dashboard", "/dashboard/avisos", "/dashboard/config", "/dashboard/usuarios"):
+    protected = ["/dashboard", "/dashboard/config", "/dashboard/usuarios"]
+    if include_new_module:
+        protected.append("/dashboard/avisos")
+    for path in protected:
         result[path] = request_status("https://" + DOMAIN + path)
         if result[path] != 307:
             raise ValueError("Anonymous administrative access was not rejected")

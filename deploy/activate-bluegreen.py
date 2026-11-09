@@ -128,7 +128,7 @@ def install_operations(folder, release, commit, workspace):
             raise ValueError("Unexpected linked installed script")
         shutil.copyfile(target, saved / target.name)
         (saved / target.name).chmod(0o600)
-    for name in ("bluegreen_operations.py", "bluegreen_runtime.py", "bluegreen_policy.py"):
+    for name in ("bluegreen_operations.py", "bluegreen_runtime.py", "bluegreen_policy.py", "activate-bluegreen.py", "prepare_bluegreen_checks.py"):
         atomic_bytes(ROOT / "bin" / name, (folder / "deploy" / name).read_bytes(), 0o700)
     for source, target in pairs:
         atomic_bytes(target, source.read_bytes().replace(b"\r\n", b"\n"), 0o700)
@@ -147,7 +147,7 @@ def rollback(workspace, state):
     if gate.exists():
         gate.unlink()
     wait_for(lambda: request_status("https://" + DOMAIN + "/api/avisos") == 404, 60)
-    public_checks()
+    public_checks(include_new_module=False)
     if state.get("previousImageSetting"):
         set_current(pathlib.Path(state["previousRelease"]).name)
         set_image(state["previousImageSetting"])
